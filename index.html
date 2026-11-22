@@ -1,2313 +1,1352 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ครูพรอมพ์สตูดิโอ · ระบบสร้างพรอมพ์เว็บแอปสื่อการสอน</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ครูพรอมพ์สตูดิโอ (EduPrompt Studio) - เครื่องมือสร้างพรอมพ์สื่อการสอน AI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Mali, Noto Sans Thai Looped, Sarabun -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,400;0,600;0,700;1,500&family=Noto+Sans+Thai+Looped:wght@300;400;500;600;700&family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Mammoth.js for reading .docx files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
-  <!-- Google Fonts: Mali (หัวข้อสไตล์น่ารักอ่านง่าย), Noto Sans Thai Looped (เนื้อหา), IBM Plex Mono (กล่องพรอมพ์) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Mali:wght@500;600;700&family=Noto+Sans+Thai+Looped:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cream: '#FAF6F0',
+                            mango: '#FF9F1C',
+                            mangodark: '#E88C08',
+                            grape: '#7C5CFC',
+                            grapedark: '#6442E4',
+                            mint: '#10B981',
+                            warmgrey: '#F3EEE7'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Mali', 'cursive', 'sans-serif'],
+                        body: ['Noto Sans Thai Looped', 'sans-serif'],
+                        sarabun: ['Sarabun', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans Thai Looped', sans-serif;
+            background-color: #FAF6F0;
+            color: #2D3748;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Mali', cursive, sans-serif;
+        }
+        .code-font {
+            font-family: 'Sarabun', monospace, sans-serif;
+        }
+        /* Custom 3D & Soft Shadows */
+        .btn-3d-mango {
+            background-color: #FF9F1C;
+            box-shadow: 0 4px 0 #D97706;
+            transition: all 0.15s ease;
+        }
+        .btn-3d-mango:hover {
+            background-color: #FFAA33;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 0 #D97706;
+        }
+        .btn-3d-mango:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #D97706;
+        }
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+        .btn-3d-grape {
+            background-color: #7C5CFC;
+            box-shadow: 0 4px 0 #5B38D8;
+            transition: all 0.15s ease;
+        }
+        .btn-3d-grape:hover {
+            background-color: #8E72FF;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 0 #5B38D8;
+        }
+        .btn-3d-grape:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #5B38D8;
+        }
 
-  <!-- Mammoth.js สำหรับอ่านไฟล์ .docx ฝั่งเบราว์เซอร์ -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" defer></script>
+        .card-custom {
+            background: #FFFFFF;
+            border: 1px solid rgba(251, 191, 36, 0.25);
+            box-shadow: 0 4px 20px -2px rgba(229, 218, 205, 0.5);
+            border-radius: 1rem;
+        }
 
-  <!-- Tailwind Custom Configuration -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['"Mali"', 'cursive', 'sans-serif'],
-            sans: ['"Noto Sans Thai Looped"', 'sans-serif'],
-            mono: ['"IBM Plex Mono"', '"Noto Sans Thai Looped"', 'monospace'],
-          },
-          colors: {
-            cream: '#FFF9F0',
-            surfaceAlt: '#FAF3E8',
-            ink: '#2B2440',
-            inkSoft: '#635A7A',
-            mango: '#FF9F1C',
-            mangoEdge: '#DD7F00',
-            grape: '#7B5CFA',
-            grapeEdge: '#5B3FD9',
-            tealSoft: '#16A394',
-            leaf: '#2EB872',
-            berry: '#EC4899',
-          },
-          boxShadow: {
-            panel: '0 10px 30px -10px rgba(43, 36, 64, 0.10), 0 2px 6px -1px rgba(43, 36, 64, 0.05)',
-            btnMango: '0 4px 0 #DD7F00, 0 8px 16px -4px rgba(255, 159, 28, 0.35)',
-            btnGrape: '0 4px 0 #5B3FD9, 0 8px 16px -4px rgba(123, 92, 250, 0.35)',
-            btnLeaf: '0 4px 0 #1F8E55, 0 8px 16px -4px rgba(46, 184, 114, 0.30)',
-            btnSoft: '0 3px 0 #E5DACB, 0 4px 10px -2px rgba(43, 36, 64, 0.06)',
-          },
-        },
-      },
-    };
-  </script>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3EEE7;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Toast styles */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-cream font-sans text-ink antialiased selection:bg-mango/30 selection:text-ink">
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-200 selection:text-amber-900">
 
-  <!-- พื้นหลังไล่เฉดสีอบอุ่นสไตล์ต้นแบบ -->
-  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
-    <div class="absolute inset-x-0 top-0 h-[440px] bg-gradient-to-b from-[#FFE8C2]/80 via-[#F8E7FF]/45 to-transparent"></div>
-    <div class="absolute -left-24 top-10 h-72 w-72 rounded-full bg-[#FFD28F]/40 blur-3xl"></div>
-    <div class="absolute -right-24 top-16 h-80 w-80 rounded-full bg-[#D8C7FF]/45 blur-3xl"></div>
-  </div>
+    <!-- Hero Wash Top Bar Banner -->
+    <div class="h-2 bg-gradient-to-r from-amber-400 via-orange-400 to-purple-500 w-full"></div>
 
-  <!-- แถบนำทางด้านบน (Sticky Header) -->
-  <header class="sticky top-0 z-40 px-3 pt-3 sm:px-5">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-2xl border border-[#EFE5D8] bg-white/95 px-3 py-2 shadow-panel backdrop-blur-md sm:px-4">
-      <!-- โลโก้และมาสคอต SVG -->
-      <div class="flex items-center gap-2.5">
-        <svg viewBox="0 0 240 240" role="img" aria-label="มาสคอตนกฮูกครูพรอมพ์" class="h-10 w-10 shrink-0">
-          <ellipse cx="120" cy="214" rx="64" ry="12" fill="#2B2440" opacity="0.10"></ellipse>
-          <path d="M58 76 L78 44 L100 66 Z" fill="#8C74E8"></path>
-          <path d="M182 76 L162 44 L140 66 Z" fill="#8C74E8"></path>
-          <path d="M120 48 C72 48 48 82 48 130 C48 176 78 206 120 206 C162 206 192 176 192 130 C192 82 168 48 120 48 Z" fill="#A68FF5"></path>
-          <ellipse cx="120" cy="158" rx="48" ry="38" fill="#EFE8FF"></ellipse>
-          <ellipse cx="52" cy="144" rx="16" ry="32" transform="rotate(14 52 144)" fill="#8C74E8"></ellipse>
-          <ellipse cx="188" cy="144" rx="16" ry="32" transform="rotate(-14 188 144)" fill="#8C74E8"></ellipse>
-          <circle cx="76" cy="138" r="11" fill="#FF9EC4" opacity="0.7"></circle>
-          <circle cx="164" cy="138" r="11" fill="#FF9EC4" opacity="0.7"></circle>
-          <circle cx="94" cy="112" r="22" fill="#FFFFFF" stroke="#FF9F1C" stroke-width="5"></circle>
-          <circle cx="146" cy="112" r="22" fill="#FFFFFF" stroke="#FF9F1C" stroke-width="5"></circle>
-          <line x1="116" y1="112" x2="124" y2="112" stroke="#FF9F1C" stroke-width="5"></line>
-          <circle cx="96" cy="113" r="10" fill="#2B2440"></circle>
-          <circle cx="148" cy="113" r="10" fill="#2B2440"></circle>
-          <circle cx="100" cy="109" r="3.5" fill="#FFFFFF"></circle>
-          <circle cx="152" cy="109" r="3.5" fill="#FFFFFF"></circle>
-          <path d="M112 126 L128 126 L120 140 Z" fill="#FF9F1C"></path>
-          <path d="M80 182 Q120 202 160 182 L154 198 Q120 214 86 198 Z" fill="#FF9F1C"></path>
-          <path d="M142 192 L158 214 L142 212 L134 196 Z" fill="#DD7F00"></path>
-        </svg>
-        <div>
-          <div class="font-display text-base font-bold leading-tight text-ink sm:text-lg">
-            ครู<span class="text-mango">พรอมพ์</span><span class="text-grape">สตูดิโอ</span>
-          </div>
-          <p class="hidden text-xs text-inkSoft sm:block">ระบบสร้างพรอมพ์เว็บแอปสื่อการสอนอัจฉริยะ</p>
-        </div>
-      </div>
-
-      <!-- ปุ่มลัดด้านขวา -->
-      <div class="flex items-center gap-2">
-        <button type="button" id="btnApiSettings" class="inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCCD] bg-white px-3 py-2 text-xs font-bold text-ink transition hover:border-grape/60 hover:bg-grape/5 active:translate-y-0.5 sm:text-sm" title="ตั้งค่า Gemini API Key ส่วนตัว">
-          <span id="apiStatusDot" class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
-          <span>⚙️ <span class="hidden sm:inline">ตั้งค่า </span>API Key</span>
-        </button>
-        <button type="button" id="btnResetAll" class="rounded-xl border border-[#E7DCCD] bg-white px-3 py-2 text-xs font-semibold text-inkSoft transition hover:bg-surfaceAlt active:translate-y-0.5 sm:text-sm">
-          🔄 เริ่มใหม่
-        </button>
-        <a href="#prompt-preview-section" class="rounded-xl bg-mango px-3.5 py-2 text-xs font-bold text-ink shadow-btnMango transition hover:brightness-105 active:translate-y-0.5 sm:text-sm lg:hidden">
-          📋 ดูพรอมพ์
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- เนื้อหาหลัก -->
-  <main class="mx-auto max-w-6xl px-3 pb-24 pt-5 sm:px-5">
-
-    <!-- แถบตัวอย่างพรอมพ์สำเร็จรูป (Quick Presets) -->
-    <section class="mb-5 rounded-3xl border border-[#EFE5D8] bg-white/90 p-4 shadow-panel">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center rounded-full bg-leaf/15 px-3 py-1 text-xs font-bold text-[#1D8751]">⚡ เทมเพลตลัด</span>
-          <span class="text-sm font-semibold text-ink">ลองกดเลือกตัวอย่างเพื่อดูพรอมพ์ทันที:</span>
-        </div>
-        <div class="flex flex-wrap gap-2" id="presetButtons">
-          <!-- เติมปุ่มตัวอย่างด้วย JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- โครงร่าง 2 คอลัมน์ (ซ้าย: ตั้งค่า 7 ส่วน | ขวา: การ์ดแสดงพรอมพ์) -->
-    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-
-      <!-- คอลัมน์ซ้าย: ฟอร์มกำหนดค่า -->
-      <div class="space-y-5 lg:col-span-7">
-
-        <!-- ส่วนที่ 7: อัปโหลดไฟล์เนื้อหาสำหรับวิเคราะห์พรอมพ์ -->
-        <section class="overflow-hidden rounded-3xl border-2 border-dashed border-grape/40 bg-white p-5 shadow-panel transition-colors" id="uploadDropZone">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-grape/15 font-display text-sm font-bold text-grape">AI</span>
-              <div>
-                <h2 class="font-display text-lg font-bold text-ink">อัปโหลดไฟล์เนื้อหาเพื่อให้ระบบวิเคราะห์พรอมพ์</h2>
-                <p class="text-xs text-inkSoft">รองรับไฟล์ PDF, Word (.docx), ข้อความ (.txt/.md) หรือรูปภาพใบความรู้/หน้าหนังสือเรียน</p>
-              </div>
-            </div>
-            <span class="rounded-full bg-grape/10 px-2.5 py-1 text-xs font-bold text-grape">✨ วิเคราะห์อัตโนมัติ</span>
-          </div>
-
-          <!-- แท็บสลับระหว่าง อัปโหลดไฟล์ กับ วางข้อความ -->
-          <div class="mt-4 flex gap-2 border-b border-[#EFE5D8] pb-3">
-            <button type="button" id="tabUploadFile" class="rounded-xl bg-grape px-3.5 py-2 text-xs font-bold text-white transition">
-              📁 อัปโหลดไฟล์
-            </button>
-            <button type="button" id="tabPasteText" class="rounded-xl bg-surfaceAlt px-3.5 py-2 text-xs font-bold text-inkSoft transition hover:bg-[#EFE5D8]">
-              📝 วางข้อความเนื้อหา
-            </button>
-          </div>
-
-          <!-- พื้นที่อัปโหลดไฟล์ -->
-          <div id="panelUploadFile" class="mt-4">
-            <label for="contentFileInput" class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/70 px-4 py-6 text-center transition hover:border-grape hover:bg-grape/5">
-              <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm transition group-hover:scale-105">📄</div>
-              <p class="text-sm font-bold text-ink">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</p>
-              <p class="mt-1 text-xs text-inkSoft">รองรับ .pdf, .docx, .txt, .md, .csv, .png, .jpg (ขนาดแนะนำไม่เกิน 8 MB)</p>
-              <input type="file" id="contentFileInput" class="hidden" accept=".txt,.md,.csv,.json,.pdf,.docx,image/png,image/jpeg,image/webp" />
-            </label>
-
-            <!-- แสดงไฟล์ที่อัปโหลดแล้ว -->
-            <div id="uploadedFileBadge" class="mt-3 hidden items-center justify-between gap-2 rounded-2xl border border-tealSoft/30 bg-tealSoft/10 px-4 py-3">
-              <div class="flex min-w-0 items-center gap-2.5">
-                <span class="text-xl" id="uploadedFileIcon">📎</span>
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-bold text-ink" id="uploadedFileName">filename.pdf</p>
-                  <p class="text-xs text-inkSoft" id="uploadedFileMeta">ขนาดไฟล์ • พร้อมวิเคราะห์</p>
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-amber-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Mascot & Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-md shadow-orange-200 text-white transform hover:rotate-6 transition-transform">
+                    <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
                 </div>
-              </div>
-              <button type="button" id="btnRemoveFile" class="shrink-0 rounded-xl bg-white px-2.5 py-1.5 text-xs font-bold text-rose-600 shadow-sm hover:bg-rose-50">
-                ✕ ลบไฟล์
-              </button>
-            </div>
-          </div>
-
-          <!-- พื้นที่วางข้อความเนื้อหา -->
-          <div id="panelPasteText" class="mt-4 hidden">
-            <textarea id="pastedContentInput" rows="4" placeholder="วางเนื้อหาจากใบความรู้ แผนการสอน หรือบทเรียนที่ต้องการสร้างสื่อที่นี่..." class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 p-3.5 text-sm text-ink placeholder:text-inkSoft/60 focus:border-grape focus:bg-white focus:outline-none focus:ring-2 focus:ring-grape/20"></textarea>
-          </div>
-
-          <!-- ปุ่มสั่งวิเคราะห์ด้วย AI -->
-          <div class="mt-4 flex flex-wrap items-center gap-2.5">
-            <button type="button" id="btnAnalyzeContent" class="inline-flex items-center gap-2 rounded-2xl bg-grape px-4 py-2.5 text-sm font-bold text-white shadow-btnGrape transition hover:brightness-105 active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
-              <span id="analyzeSpinner" class="hidden h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-              <span id="analyzeBtnLabel">🔍 วิเคราะห์เนื้อหา &amp; แนะนำการตั้งค่าอัตโนมัติ</span>
-            </button>
-            <span class="text-xs text-inkSoft">ระบบจะช่วยดึงประเด็นสำคัญ แนะนำรูปแบบใบความรู้ แบบฝึกหัด และกิจกรรมที่เหมาะกับเนื้อหา</span>
-          </div>
-
-          <!-- กล่องแสดงผลการวิเคราะห์ -->
-          <div id="aiAnalysisResult" class="mt-4 hidden rounded-2xl border border-leaf/30 bg-leaf/10 p-4">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="text-lg">🤖</span>
-                <h3 class="font-display text-sm font-bold text-[#176E41]" id="aiAnalysisHeading">ผลการวิเคราะห์เนื้อหาและคำแนะนำที่เหมาะสม</h3>
-              </div>
-              <button type="button" id="btnApplyRecommendations" class="rounded-xl bg-leaf px-3 py-1.5 text-xs font-bold text-white shadow-btnLeaf transition hover:brightness-105 active:translate-y-0.5">
-                ✨ ใช้ค่าแนะนำทั้งหมดทันที
-              </button>
-            </div>
-            <div id="aiAnalysisDetails" class="mt-2.5 space-y-1.5 text-xs leading-relaxed text-ink"></div>
-          </div>
-
-          <!-- กล่องแจ้งเตือนข้อผิดพลาดแบบสุภาพ (แทน alert) -->
-          <div id="aiErrorBox" class="mt-3 hidden rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700"></div>
-        </section>
-
-        <!-- ส่วนที่ 1: วิชา และหัวข้อบทเรียน -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex items-center gap-2.5">
-            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-mango/20 font-display text-sm font-bold text-mangoEdge">1</span>
-            <div>
-              <h2 class="font-display text-lg font-bold text-ink">เลือกวิชาและหัวข้อบทเรียน</h2>
-              <p class="text-xs text-inkSoft">ระบุกลุ่มสาระการเรียนรู้และเรื่องที่ต้องการสร้างเว็บแอปสื่อการสอน</p>
-            </div>
-          </div>
-
-          <!-- ตัวเลือกวิชา -->
-          <div id="subjectGrid" class="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <!-- สร้างด้วย JS -->
-          </div>
-
-          <!-- ช่องกรอกวิชาเองเมื่อเลือก "ระบุเอง" -->
-          <div id="customSubjectWrap" class="mt-3 hidden">
-            <label for="customSubjectInput" class="mb-1 block text-xs font-bold text-inkSoft">ระบุชื่อวิชาเอง</label>
-            <input type="text" id="customSubjectInput" placeholder="เช่น ภาษาจีน, ดาราศาสตร์, การเงินเบื้องต้น" class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 px-3.5 py-2.5 text-sm text-ink focus:border-mango focus:bg-white focus:outline-none focus:ring-2 focus:ring-mango/25" />
-          </div>
-
-          <!-- ชื่อเรื่อง / บทเรียน และธีมภาพรวม -->
-          <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <label for="topicInput" class="mb-1 block text-xs font-bold text-ink">หัวข้อ / เรื่องที่สอน <span class="text-mangoEdge">*</span></label>
-              <input type="text" id="topicInput" value="คำเป็น คำตาย" placeholder="เช่น คำเป็น คำตาย, เศษส่วน, ระบบสุริยะ" class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 px-3.5 py-2.5 text-sm font-medium text-ink focus:border-mango focus:bg-white focus:outline-none focus:ring-2 focus:ring-mango/25" />
-            </div>
-            <div>
-              <label for="themeSelect" class="mb-1 block text-xs font-bold text-ink">โทนสี / ธีมของเว็บแอปสื่อการสอน</label>
-              <select id="themeSelect" class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 px-3.5 py-2.5 text-sm font-medium text-ink focus:border-mango focus:bg-white focus:outline-none focus:ring-2 focus:ring-mango/25">
-                <option value="สดใสน่ารัก พาสเทล เป็นมิตรกับเด็ก (Playful Pastel Soft 3D)">🎨 สดใสน่ารัก พาสเทล (Playful Pastel)</option>
-                <option value="โมเดิร์นมินิมอล อ่านง่าย สบายตา (Clean Modern Edu)">✨ โมเดิร์นมินิมอล อ่านง่าย (Modern Clean)</option>
-                <option value="ผจญภัยแฟนตาซี เวทมนตร์น่าตื่นเต้น (Fantasy Quest)">🪄 ผจญภัยแฟนตาซี เวทมนตร์ (Fantasy Quest)</option>
-                <option value="อวกาศ วิทยาศาสตร์ ไซไฟทันสมัย (Sci-Fi Space Explorer)">🚀 อวกาศไซไฟ ทันสมัย (Space Explorer)</option>
-                <option value="ธรรมชาติ รักษ์โลก โทนเขียวอบอุ่น (Eco Nature Classroom)">🌿 ธรรมชาติ รักษ์โลก (Eco Nature)</option>
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <!-- ส่วนที่ 2: ระดับชั้น -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex items-center gap-2.5">
-            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-tealSoft/15 font-display text-sm font-bold text-tealSoft">2</span>
-            <div>
-              <h2 class="font-display text-lg font-bold text-ink">เลือกระดับชั้นผู้เรียน</h2>
-              <p class="text-xs text-inkSoft">เพื่อให้ AI ปรับระดับภาษา ความยากง่าย และขนาดปุ่มให้เหมาะสมกับช่วงวัย</p>
-            </div>
-          </div>
-
-          <div id="gradeGroups" class="space-y-3">
-            <!-- สร้างด้วย JS -->
-          </div>
-        </section>
-
-        <!-- ส่วนที่ 3: รูปแบบเนื้อหาใบความรู้ -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex items-center gap-2.5">
-            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-grape/15 font-display text-sm font-bold text-grape">3</span>
-            <div>
-              <h2 class="font-display text-lg font-bold text-ink">เลือกรูปแบบเนื้อหาใบความรู้</h2>
-              <p class="text-xs text-inkSoft">กำหนดรูปแบบการนำเสนอบทเรียนหลักภายในเว็บแอป</p>
-            </div>
-          </div>
-
-          <div id="knowledgeFormatGrid" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <!-- สร้างด้วย JS -->
-          </div>
-        </section>
-
-        <!-- ส่วนที่ 4: แบบฝึกหัดระหว่างเรียน -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-berry/15 font-display text-sm font-bold text-berry">4</span>
-              <div>
-                <h2 class="font-display text-lg font-bold text-ink">เลือกแบบฝึกหัดระหว่างเรียน</h2>
-                <p class="text-xs text-inkSoft">เลือกได้มากกว่า 1 รูปแบบ เพื่อสร้างชุดฝึกทักษะที่หลากหลาย</p>
-              </div>
-            </div>
-            <span id="exerciseCountBadge" class="rounded-full bg-berry/10 px-3 py-1 text-xs font-bold text-berry">เลือกแล้ว 2 รูปแบบ</span>
-          </div>
-
-          <div id="exerciseGrid" class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <!-- สร้างด้วย JS -->
-          </div>
-
-          <!-- จำนวนข้อต่อแบบฝึกหัด -->
-          <div class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-surfaceAlt px-4 py-3">
-            <span class="text-xs font-bold text-ink">จำนวนข้อต่อแบบฝึกหัดแต่ละรูปแบบ:</span>
-            <div class="flex gap-1.5" id="exerciseItemCountBtns">
-              <!-- สร้างด้วย JS -->
-            </div>
-          </div>
-        </section>
-
-        <!-- ส่วนที่ 5: กิจกรรมเกมระหว่างเรียน (เลือกได้หลายกิจกรรมพร้อมกัน) -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-leaf/20 font-display text-sm font-bold text-[#1D8751]">5</span>
-              <div>
-                <h2 class="font-display text-lg font-bold text-ink">เลือกกิจกรรมเกมระหว่างเรียน</h2>
-                <p class="text-xs text-inkSoft">เลือกได้มากกว่า 1 กิจกรรม เพื่อให้ผู้เรียนสลับเล่นเกมทบทวนความรู้ได้อย่างหลากหลาย</p>
-              </div>
-            </div>
-            <span id="activityCountBadge" class="rounded-full bg-leaf/15 px-3 py-1 text-xs font-bold text-[#1D8751]">เลือกแล้ว 1 กิจกรรม</span>
-          </div>
-
-          <div id="activityGrid" class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <!-- สร้างด้วย JS -->
-          </div>
-        </section>
-
-        <!-- ส่วนที่ 6: แบบทดสอบหลังเรียน -->
-        <section class="rounded-3xl border border-[#EFE5D8] bg-white p-5 shadow-panel">
-          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-100 font-display text-sm font-bold text-amber-700">6</span>
-              <div>
-                <h2 class="font-display text-lg font-bold text-ink">ตั้งค่าแบบทดสอบหลังเรียน (Post-Test)</h2>
-                <p class="text-xs text-inkSoft">กำหนดรูปแบบข้อสอบ จำนวนตัวเลือก และจำนวนข้อสำหรับประเมินผล</p>
-              </div>
-            </div>
-
-            <!-- สวิตช์เปิด-ปิด แบบทดสอบหลังเรียน -->
-            <label class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-surfaceAlt px-3 py-1.5">
-              <input type="checkbox" id="postTestEnabled" checked class="h-4 w-4 rounded accent-mango" />
-              <span class="text-xs font-bold text-ink">มีแบบทดสอบหลังเรียน</span>
-            </label>
-          </div>
-
-          <div id="postTestConfigWrap" class="space-y-4">
-            <!-- รูปแบบแบบทดสอบ -->
-            <div>
-              <label class="mb-2 block text-xs font-bold text-inkSoft">รูปแบบข้อสอบ</label>
-              <div id="postTestTypeBtns" class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                <!-- สร้างด้วย JS -->
-              </div>
-            </div>
-
-            <!-- จำนวนตัวเลือก & จำนวนข้อ -->
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div id="choiceCountWrap">
-                <label class="mb-2 block text-xs font-bold text-inkSoft">จำนวนตัวเลือกต่อข้อ</label>
-                <div id="choiceCountBtns" class="flex flex-wrap gap-2">
-                  <!-- สร้างด้วย JS -->
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight flex items-center gap-2">
+                        ครูพรอมพ์สตูดิโอ <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-sans font-semibold border border-amber-200">EduPrompt Studio v2.5</span>
+                    </h1>
+                    <p class="text-xs text-gray-500 hidden sm:block">เครื่องมือช่วยคุณครูสร้างพรอมพ์สำหรับสั่ง AI เนรมิตเว็บแอปสื่อการสอน แบบ Single-File HTML</p>
                 </div>
-              </div>
+            </div>
 
-              <div>
-                <label class="mb-2 block text-xs font-bold text-inkSoft">จำนวนข้อสอบทั้งหมด</label>
-                <div class="flex flex-wrap items-center gap-2">
-                  <div id="questionCountBtns" class="flex flex-wrap gap-1.5">
-                    <!-- สร้างด้วย JS -->
-                  </div>
-                  <div class="flex items-center gap-1 rounded-xl border border-[#E7DCCD] bg-surfaceAlt px-2.5 py-1">
-                    <input type="number" id="customQuestionCount" min="1" max="50" value="10" class="w-12 bg-transparent text-center text-xs font-bold text-ink focus:outline-none" />
-                    <span class="text-xs text-inkSoft">ข้อ</span>
-                  </div>
+            <!-- Right Controls: API Settings Button -->
+            <div class="flex items-center gap-3">
+                <button onclick="openApiModal()" class="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-amber-300 transition shadow-sm font-medium text-sm">
+                    <span id="api-status-dot" class="w-3 h-3 rounded-full bg-amber-400 animate-pulse"></span>
+                    <i class="fa-solid fa-key text-amber-500"></i>
+                    <span class="hidden sm:inline">ตั้งค่า</span> API Key
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace (2 Columns) -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT COLUMN: Input Form (7 Sections) -->
+            <div class="lg:col-span-7 space-y-6">
+
+                <!-- Welcome Banner Card -->
+                <div class="card-custom p-6 bg-gradient-to-br from-amber-50 to-orange-50/40 border-amber-200">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 bg-amber-500/10 rounded-xl text-amber-600 text-2xl">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-amber-900">ออกแบบสื่อการสอน AI ได้ดั่งใจในไม่กี่คลิก</h2>
+                            <p class="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
+                                เลือกระดับชั้น วิชา รูปแบบใบความรู้ แบบฝึกหัดที่สั่งพิมพ์ PDF A4 ได้ และเกมจับคู่แผ่นป้ายเพื่อสร้างคำสั่ง (Prompt) นำไปวางใน Gemini หรือ AI เพื่อรับโค้ดไปเปิดใช้งานบน GitHub Pages ได้ทันที!
+                            </p>
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <!-- SECTION 1: วิชา & หัวข้อบทเรียน + โทนสี -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center gap-2 mb-4 text-amber-700 font-bold text-base border-b border-gray-100 pb-3">
+                        <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">1</span>
+                        <h3>วิชา & หัวข้อบทเรียน + โทนสีธีมสื่อ</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Subject Chips -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">เลือกกลุ่มสาระการเรียนรู้</label>
+                            <div class="flex flex-wrap gap-2" id="subject-chips">
+                                <!-- Chips dynamically built in JS -->
+                            </div>
+                        </div>
+
+                        <!-- Topic Input -->
+                        <div>
+                            <label for="topic-name" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">ชื่อเรื่อง / หัวข้อบทเรียน <span class="text-red-500">*</span></label>
+                            <input type="text" id="topic-name" oninput="updatePrompt()" placeholder="ตัวอย่าง: การสังเคราะห์ด้วยแสงของพืช, ประวัติศาสตร์สุโขทัย, Python Basics" 
+                                class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-amber-400 focus:border-amber-400 outline-none transition text-sm">
+                        </div>
+
+                        <!-- Color Theme Picker -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">เลือกโทนสีของแอปสื่อการสอน</label>
+                            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="theme-color-options">
+                                <!-- Theme palette choices -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: ระดับชั้น -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center gap-2 mb-4 text-amber-700 font-bold text-base border-b border-gray-100 pb-3">
+                        <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">2</span>
+                        <h3>ระดับชั้นของผู้เรียน</h3>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2" id="grade-chips">
+                        <!-- Grade chips built via JS -->
+                    </div>
+                </section>
+
+                <!-- SECTION 3: ใบความรู้ + [Feature #3] แบนเนอร์ปรับรูปได้ -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2 text-amber-700 font-bold text-base">
+                            <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">3</span>
+                            <h3>รูปแบบใบความรู้ & แบนเนอร์ภาพประกอบ</h3>
+                        </div>
+                    </div>
+
+                    <!-- Content Format Selection -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5" id="content-format-options">
+                        <!-- Options generated in JS -->
+                    </div>
+
+                    <!-- NEW FEATURE #3 BOX: Dynamic Banner Image Configuration -->
+                    <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 font-semibold text-sm text-amber-900 cursor-pointer">
+                                <input type="checkbox" id="feat-banner-enable" checked onchange="updatePrompt()" class="w-4 h-4 text-amber-500 rounded focus:ring-amber-400">
+                                <span>🖼️ แบนเนอร์รูปภาพประกอบบทเรียน (เปลี่ยนรูปได้เอง)</span>
+                            </label>
+                            <span class="text-[10px] bg-amber-200 text-amber-800 font-semibold px-2 py-0.5 rounded-full">ฟีเจอร์ใหม่ #3</span>
+                        </div>
+                        <p class="text-xs text-gray-600 pl-6">
+                            สั่งให้ AI ออกแบบส่วน Banner ที่รองรับการแก้ไข URL รูปภาพได้ในโค้ดจุดเดียว พร้อมตัวเลือกเปลี่ยนรูปสด
+                        </p>
+                        
+                        <div class="pl-6 space-y-3 pt-1">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">ลิงก์รูปภาพแบนเนอร์ตั้งต้น (URL) (ไม่บังคับ - สามารถไปแก้ในโค้ดภายหลังได้)</label>
+                                <input type="text" id="banner-url" oninput="updateBannerPreview(); updatePrompt();" placeholder="https://images.unsplash.com/photo-..." 
+                                    class="w-full px-3 py-2 rounded-lg border border-amber-200 bg-white text-xs focus:ring-2 focus:ring-amber-400 outline-none">
+                            </div>
+                            
+                            <!-- Banner Image Live Preview -->
+                            <div id="banner-preview-box" class="hidden rounded-lg overflow-hidden border border-amber-200 h-28 relative bg-gray-100">
+                                <img id="banner-preview-img" src="" alt="Banner Preview" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/800x200/ff9f1c/ffffff?text=Image+Load+Error'">
+                                <div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur">
+                                    พรีวิวตัวอย่างแบนเนอร์
+                                </div>
+                            </div>
+
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="feat-banner-upload-btn" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-amber-500 rounded focus:ring-amber-400">
+                                <span>เพิ่มปุ่มบนหน้าเว็บแอป ให้ครูสามารถวาง URL หรืออัปโหลดรูปแบนเนอร์เปลี่ยนสดได้</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 4: แบบฝึกหัด + [Feature #1] PDF A4 Print -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2 text-amber-700 font-bold text-base">
+                            <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">4</span>
+                            <h3>แบบฝึกหัดระหว่างเรียน</h3>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <span>จำนวน:</span>
+                            <select id="exercise-count" onchange="updatePrompt()" class="px-2 py-1 rounded-lg border border-gray-200 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-amber-400">
+                                <option value="3">3 ข้อ</option>
+                                <option value="5" selected>5 ข้อ</option>
+                                <option value="8">8 ข้อ</option>
+                                <option value="10">10 ข้อ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Exercise Multi-select Checkboxes -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5" id="exercise-types-container">
+                        <!-- Dynamically filled in JS -->
+                    </div>
+
+                    <!-- NEW FEATURE #1 BOX: Print / Download A4 PDF -->
+                    <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 font-semibold text-sm text-blue-900 cursor-pointer">
+                                <input type="checkbox" id="feat-pdf-enable" checked onchange="togglePdfOptions(); updatePrompt();" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-400">
+                                <span>🖨️ ระบบพิมพ์ / ดาวน์โหลดแบบฝึกหัดเป็นเอกสาร PDF (กระดาษ A4)</span>
+                            </label>
+                            <span class="text-[10px] bg-blue-200 text-blue-800 font-semibold px-2 py-0.5 rounded-full">ฟีเจอร์ใหม่ #1</span>
+                        </div>
+                        <p class="text-xs text-gray-600 pl-6">
+                            เพิ่มปุ่มสั่งพิมพ์แบบฝึกหัดพร้อมจัด CSS เลย์เอาต์ A4 สวยงามสำหรับนำไปพิมพ์เป็นใบงานให้นักเรียนทำในห้องเรียน
+                        </p>
+
+                        <div id="pdf-options-sub" class="pl-6 space-y-2 pt-1">
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="pdf-opt-header" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-blue-600 rounded">
+                                <span>มีหัวกระดาษใบงานมาตรฐาน (ชื่อโรงเรียน, วิชา, ชื่อ-นามสกุล, ชั้น, เลขที่, ช่องคะแนน)</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="pdf-opt-answerkey" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-blue-600 rounded">
+                                <span>มีปุ่มสลับโหมดพิมพ์ได้ทั้ง "ฉบับนักเรียน (ว่างไว้ทำ)" และ "ฉบับเฉลยสำหรับครู"</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="pdf-opt-break" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-blue-600 rounded">
+                                <span>จัดระยะขอบมาตรฐาน 12mm/15mm และป้องกันข้อสอบถูกตัดครึ่งข้ามหน้า (break-inside: avoid)</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 5: กิจกรรมเกม + [Feature #2] เปิดป้าย 5 วิ -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2 text-amber-700 font-bold text-base">
+                            <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">5</span>
+                            <h3>กิจกรรมเกมระหว่างเรียน (เลือกได้หลายเกม)</h3>
+                        </div>
+                        <button onclick="clearAllGames()" class="text-xs text-gray-500 hover:text-red-500 underline">
+                            ไม่ใส่เกมเพิ่มเติม
+                        </button>
+                    </div>
+
+                    <!-- Game Cards Selection -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5" id="games-container">
+                        <!-- Dynamic Games Cards -->
+                    </div>
+
+                    <!-- NEW FEATURE #2 BOX: Memory Card 5 Seconds Preview (Visible when Memory Card is selected) -->
+                    <div id="memory-card-feature-box" class="transition-all duration-300 bg-purple-50/70 border border-purple-200 rounded-xl p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 font-semibold text-sm text-purple-900 cursor-pointer">
+                                <input type="checkbox" id="feat-peek-enable" checked onchange="togglePeekOptions(); updatePrompt();" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-400">
+                                <span>👀 เพิ่มปุ่มเปิดแผ่นป้ายให้นักเรียนดูทั้งหมดก่อนเล่น (Memory Peek)</span>
+                            </label>
+                            <span class="text-[10px] bg-purple-200 text-purple-800 font-semibold px-2 py-0.5 rounded-full">ฟีเจอร์ใหม่ #2</span>
+                        </div>
+                        <p class="text-xs text-gray-600 pl-6">
+                            ให้นักเรียนกดปุ่มเพื่อหงายแผ่นป้ายทั้งหมดชั่วคราว ทบทวนและจดจำตำแหน่งคำตอบก่อนเริ่มเปิดจับคู่
+                        </p>
+
+                        <div id="peek-options-sub" class="pl-6 space-y-3 pt-1">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-semibold text-gray-700">ระยะเวลาเปิดดู:</span>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="setPeekTime(3)" id="peek-time-3" class="px-2.5 py-1 text-xs rounded-lg border border-purple-300 bg-white">3 วิ</button>
+                                    <button type="button" onclick="setPeekTime(5)" id="peek-time-5" class="px-2.5 py-1 text-xs rounded-lg border border-purple-600 bg-purple-600 text-white font-bold">5 วิ (แนะนำ)</button>
+                                    <button type="button" onclick="setPeekTime(8)" id="peek-time-8" class="px-2.5 py-1 text-xs rounded-lg border border-purple-300 bg-white">8 วิ</button>
+                                    <button type="button" onclick="setPeekTime(10)" id="peek-time-10" class="px-2.5 py-1 text-xs rounded-lg border border-purple-300 bg-white">10 วิ</button>
+                                </div>
+                            </div>
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="peek-opt-timer" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-purple-600 rounded">
+                                <span>แสดงตัวนับถอยหลัง (5...4...3...) พร้อมแถบเวลา และเสียงติ๊กต็อก ก่อนคว่ำกลับอัตโนมัติ</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="peek-opt-lock" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-purple-600 rounded">
+                                <span>ล็อกไม่ให้กดจับคู่ระหว่างกำลังเปิดดู และจำกัดสิทธิ์กดปุ่มดูได้ 1 ครั้งต่อรอบ</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 6: แบบทดสอบหลังเรียน -->
+                <section class="card-custom p-6">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2 text-amber-700 font-bold text-base">
+                            <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center text-sm font-sans font-bold">6</span>
+                            <h3>แบบทดสอบหลังเรียน (Post-Test)</h3>
+                        </div>
+                        <label class="flex items-center gap-2 text-xs font-semibold text-gray-600 cursor-pointer">
+                            <input type="checkbox" id="quiz-enable" checked onchange="toggleQuizSub(); updatePrompt();" class="w-4 h-4 text-amber-500 rounded">
+                            <span>เปิดใช้งานระบบสอบ</span>
+                        </label>
+                    </div>
+
+                    <div id="quiz-sub-container" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">รูปแบบข้อสอบ</label>
+                                <select id="quiz-format" onchange="updatePrompt()" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs bg-white outline-none">
+                                    <option value="ปรนัยเลือกตอบ">ปรนัย (Multiple Choice)</option>
+                                    <option value="ถูก-ผิด">ถูก-ผิด (True/False)</option>
+                                    <option value="ผสม">ผสมหลายรูปแบบ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">จำนวนตัวเลือก/ข้อ</label>
+                                <select id="quiz-options-count" onchange="updatePrompt()" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs bg-white outline-none">
+                                    <option value="4" selected>4 ตัวเลือก (ก, ข, ค, ง)</option>
+                                    <option value="3">3 ตัวเลือก</option>
+                                    <option value="5">5 ตัวเลือก</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">จำนวนข้อสอบ</label>
+                                <select id="quiz-num-questions" onchange="updatePrompt()" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs bg-white outline-none">
+                                    <option value="5">5 ข้อ</option>
+                                    <option value="10" selected>10 ข้อ</option>
+                                    <option value="15">15 ข้อ</option>
+                                    <option value="20">20 ข้อ</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                            <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="quiz-opt-shuffle" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-amber-500 rounded">
+                                <span>สลับโจทย์/ตัวเลือก</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="quiz-opt-explain" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-amber-500 rounded">
+                                <span>แสดงเฉลยอย่างละเอียด</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="quiz-opt-timer" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-amber-500 rounded">
+                                <span>ระบบจับเวลาสอบ</span>
+                            </label>
+                            <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                                <input type="checkbox" id="quiz-opt-cert" checked onchange="updatePrompt()" class="w-3.5 h-3.5 text-amber-500 rounded">
+                                <span>พิมพ์เกียรติบัตรออนไลน์</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 7: อัปโหลดไฟล์เนื้อหา / วิเคราะห์พรอมพ์ด้วย AI -->
+                <section class="card-custom p-6 border-2 border-dashed border-purple-200 bg-purple-50/20">
+                    <div class="flex items-center justify-between border-b border-purple-100 pb-3 mb-4">
+                        <div class="flex items-center gap-2 text-purple-800 font-bold text-base">
+                            <span class="w-7 h-7 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center text-sm font-sans font-bold">7</span>
+                            <h3>อัปโหลดเนื้อหา / ให้ AI ช่วยวิเคราะห์ปรับตั้งค่า</h3>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- File Upload Box -->
+                        <div id="drop-zone" onclick="document.getElementById('file-input').click()" 
+                            class="border-2 border-dashed border-gray-300 hover:border-purple-400 bg-white rounded-xl p-5 text-center cursor-pointer transition">
+                            <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.txt,.md,.png,.jpg,.jpeg,.webp" onchange="handleFileSelect(event)">
+                            <div class="text-purple-600 text-3xl mb-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p class="text-sm font-semibold text-gray-700">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                            <p class="text-xs text-gray-400 mt-1">รองรับเอกสาร (.pdf, .docx, .txt, .md) และไฟล์รูปภาพบทเรียน (.png, .jpg)</p>
+                            <div id="file-info" class="hidden mt-3 p-2 bg-purple-50 text-purple-800 text-xs rounded-lg font-mono"></div>
+                        </div>
+
+                        <!-- Manual Text Area Input -->
+                        <div>
+                            <label for="pasted-content" class="block text-xs font-semibold text-gray-600 mb-1">หรือพิมพ์/วางข้อความเนื้อหาบทเรียนตรงนี้:</label>
+                            <textarea id="pasted-content" rows="3" oninput="updatePrompt()" placeholder="สรุปเนื้อหาบทเรียน หรือจุดประสงค์ที่ต้องการใส่เพิ่มเติม..." 
+                                class="w-full p-3 rounded-xl border border-gray-200 text-xs outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+                        </div>
+
+                        <!-- AI Analyze Button -->
+                        <button onclick="analyzeContentWithAI()" id="btn-analyze-ai" class="w-full py-3 px-4 rounded-xl btn-3d-grape text-white font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain"></i>
+                            <span>🧠 วิเคราะห์เนื้อหาและแนะนำการตั้งค่าอัตโนมัติ</span>
+                        </button>
+                    </div>
+                </section>
+
             </div>
 
-            <!-- ฟีเจอร์เสริมของแบบทดสอบ -->
-            <div class="rounded-2xl bg-surfaceAlt p-3.5">
-              <p class="mb-2 text-xs font-bold text-ink">ฟีเจอร์เสริมของระบบทดสอบ:</p>
-              <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-ink">
-                  <input type="checkbox" id="optShuffle" checked class="h-4 w-4 rounded accent-mango" />
-                  <span>🔀 สลับลำดับข้อและตัวเลือกทุกครั้ง</span>
-                </label>
-                <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-ink">
-                  <input type="checkbox" id="optExplain" checked class="h-4 w-4 rounded accent-mango" />
-                  <span>💡 แสดงเฉลยละเอียดพร้อมคำอธิบาย</span>
-                </label>
-                <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-ink">
-                  <input type="checkbox" id="optCertificate" checked class="h-4 w-4 rounded accent-mango" />
-                  <span>🏆 ออกเกียรติบัตรดิจิทัลเมื่อสอบผ่าน</span>
-                </label>
-                <label class="flex cursor-pointer items-center gap-2 text-xs font-medium text-ink">
-                  <input type="checkbox" id="optTimer" class="h-4 w-4 rounded accent-mango" />
-                  <span>⏱️ นาฬิกาจับเวลาทำแบบทดสอบ</span>
-                </label>
-              </div>
+            <!-- RIGHT COLUMN: Sticky Real-time Prompt Preview & Actions -->
+            <div class="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
+
+                <!-- Header Card / Dynamic SVG App Banner Preview -->
+                <div class="card-custom overflow-hidden">
+                    <div id="banner-header-preview" class="h-32 bg-gradient-to-r from-amber-400 to-orange-500 p-4 flex flex-col justify-between text-white relative">
+                        <div class="flex justify-between items-start z-10">
+                            <span id="preview-badge-subject" class="bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/30">
+                                สังคมศึกษา
+                            </span>
+                            <span id="preview-badge-grade" class="bg-black/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                ป.4–ป.6
+                            </span>
+                        </div>
+                        <div class="z-10">
+                            <h3 id="preview-banner-title" class="text-lg font-bold truncate">การสังเคราะห์ด้วยแสงของพืช</h3>
+                            <p class="text-xs text-amber-100 flex items-center gap-1 mt-0.5">
+                                <i class="fa-solid fa-graduation-cap"></i> Interactive Single-File Web App
+                            </p>
+                        </div>
+                        <!-- SVG Abstract Graphic Background -->
+                        <svg class="absolute right-0 bottom-0 opacity-20 w-44 h-44 text-white pointer-events-none" fill="currentColor" viewBox="0 0 200 200">
+                            <path d="M45.7,-57C58.9,-46.3,69.1,-31.6,73.5,-15.1,77.9,1.4,76.5,19.7,68.4,34.8C60.3,49.9,45.5,61.8,29,67.6C12.5,73.4,-5.7,73.1,-23.4,67.5C-41.1,61.9,-58.3,51,-67.2,35.4C-76.1,19.8,-76.7,-0.5,-71.4,-18.2C-66.1,-35.9,-54.9,-51,-40.7,-61.2C-26.5,-71.4,-9.3,-76.7,5.5,-75.2C20.3,-73.7,32.5,-67.7,45.7,-57Z" transform="translate(100 100)" />
+                        </svg>
+                    </div>
+
+                    <!-- Selected Features Summary Badges -->
+                    <div class="p-3 bg-amber-50/50 border-t border-amber-100 flex flex-wrap gap-1.5 text-[11px]" id="selected-summary-chips">
+                        <!-- Chips inserted live -->
+                    </div>
+                </div>
+
+                <!-- Prompt Output Container -->
+                <div class="card-custom p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-code text-amber-500"></i> พรอมพ์คำสั่ง AI สื่อการสอน
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            <label class="text-xs text-gray-500 cursor-pointer flex items-center gap-1">
+                                <input type="checkbox" id="toggle-edit-prompt" onchange="toggleManualPromptEdit()" class="rounded text-amber-500">
+                                <span>✏️ แก้ไขพรอมพ์เอง</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Live Prompt Text Area / View -->
+                    <div class="relative">
+                        <textarea id="prompt-output-text" readonly 
+                            class="code-font w-full h-80 p-3.5 rounded-xl bg-gray-900 text-amber-300 text-xs leading-relaxed outline-none border border-gray-800 resize-none font-mono"></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="copyPromptToClipboard()" class="py-2.5 px-3 rounded-xl btn-3d-mango text-white font-bold text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>คัดลอกทั้งหมด</span>
+                        </button>
+                        <a href="https://gemini.google.com/app" target="_blank" class="py-2.5 px-3 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-purple-600"></i>
+                            <span>เปิด Gemini ↗</span>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="refinePromptWithAI()" id="btn-refine-prompt" class="py-2.5 px-3 rounded-xl btn-3d-grape text-white font-bold text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-sparkles"></i>
+                            <span>✨ เกลาพรอมพ์ด้วย AI</span>
+                        </button>
+                        <button onclick="downloadPromptTxt()" class="py-2.5 px-3 rounded-xl bg-amber-100 border border-amber-200 text-amber-900 hover:bg-amber-200 font-bold text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-download"></i>
+                            <span>ดาวน์โหลด .txt</span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
-          </div>
-        </section>
-
-      </div>
-
-      <!-- คอลัมน์ขวา: การ์ดแสดงพรอมพ์สำเร็จรูป (สไตล์เดียวกับต้นแบบ) -->
-      <aside id="prompt-preview-section" class="lg:sticky lg:top-24 lg:col-span-5">
-        <div class="overflow-hidden rounded-3xl border border-[#EFE5D8] bg-white shadow-panel">
-          <!-- แบนเนอร์ภาพปก SVG ไดนามิกตามวิชาและหัวข้อ -->
-          <div id="dynamicCoverBanner" class="relative h-40 w-full overflow-hidden bg-gradient-to-br from-[#FFE8C2] via-[#FFD8EC] to-[#E6DCFF]">
-            <!-- วาด SVG ด้วย JS -->
-          </div>
-
-          <div class="p-5">
-            <!-- แถบสถานะด้านบน -->
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="inline-flex items-center gap-1 rounded-full bg-leaf/20 px-3 py-1 text-xs font-bold text-[#1D8751]">
-                🎁 พรอมพ์พร้อมใช้งาน
-              </span>
-              <span id="promptCharCount" class="text-xs font-medium text-inkSoft">0 ตัวอักษร</span>
-            </div>
-
-            <!-- ชื่อเรื่องพรอมพ์ -->
-            <h1 id="previewTitle" class="mt-2 font-display text-2xl font-bold leading-tight text-ink">
-              สื่อการสอน: คำเป็น คำตาย
-            </h1>
-
-            <!-- แท็กสรุป (Chips) สไตล์ต้นแบบ -->
-            <div id="previewChips" class="mt-2.5 flex flex-wrap gap-1.5">
-              <!-- เติมด้วย JS -->
-            </div>
-
-            <p class="mt-3 text-xs leading-relaxed text-inkSoft">
-              คัดลอกพรอมพ์ด้านล่างไปวางใน Gemini เพื่อสร้างเว็บแอปสื่อการสอนแบบไฟล์เดียวที่พร้อมใช้งานทันที
-            </p>
-
-            <!-- กล่องพรอมพ์ (โหมดอ่าน / โหมดแก้ไข) -->
-            <div class="relative mt-3">
-              <div id="promptReadBox" class="max-h-[400px] overflow-auto rounded-2xl border border-[#EFE5D8] bg-surfaceAlt p-4">
-                <pre id="promptOutputPre" class="whitespace-pre-wrap break-words font-mono text-xs leading-relaxed text-ink"></pre>
-              </div>
-
-              <textarea id="promptEditTextarea" rows="16" class="hidden max-h-[400px] w-full rounded-2xl border-2 border-grape bg-white p-4 font-mono text-xs leading-relaxed text-ink focus:outline-none"></textarea>
-            </div>
-
-            <!-- ปุ่มควบคุมหลักสไตล์ 3D แบบต้นแบบ -->
-            <div class="mt-4 flex flex-wrap gap-2.5">
-              <button type="button" id="btnCopyPrompt" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-mango px-4 py-3 text-sm font-bold text-ink shadow-btnMango transition hover:brightness-105 active:translate-y-0.5">
-                📋 คัดลอกทั้งหมด
-              </button>
-
-              <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-grape px-4 py-3 text-sm font-bold text-white shadow-btnGrape transition hover:brightness-105 active:translate-y-0.5">
-                เปิด Gemini ↗
-              </a>
-            </div>
-
-            <!-- ปุ่มเสริมด้านล่าง -->
-            <div class="mt-2.5 flex flex-wrap gap-2">
-              <button type="button" id="btnEnhanceAI" class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-[#E7DCCD] bg-white px-3 py-2.5 text-xs font-bold text-ink shadow-btnSoft transition hover:bg-surfaceAlt active:translate-y-0.5 disabled:opacity-50">
-                <span id="enhanceSpinner" class="hidden h-3.5 w-3.5 animate-spin rounded-full border-2 border-grape border-t-transparent"></span>
-                <span>✨ เกลาพรอมพ์ด้วย AI</span>
-              </button>
-
-              <button type="button" id="btnToggleEdit" class="inline-flex items-center justify-center gap-1 rounded-2xl border border-[#E7DCCD] bg-white px-3.5 py-2.5 text-xs font-bold text-ink shadow-btnSoft transition hover:bg-surfaceAlt active:translate-y-0.5">
-                ✏️ แก้ไขเอง
-              </button>
-
-              <button type="button" id="btnDownloadTxt" class="inline-flex items-center justify-center gap-1 rounded-2xl border border-[#E7DCCD] bg-white px-3.5 py-2.5 text-xs font-bold text-ink shadow-btnSoft transition hover:bg-surfaceAlt active:translate-y-0.5" title="ดาวน์โหลดพรอมพ์เป็นไฟล์ข้อความ">
-                💾 .txt
-              </button>
-            </div>
-          </div>
         </div>
-      </aside>
+    </main>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-amber-100 py-6 mt-12 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>ครูพรอมพ์สตูดิโอ (EduPrompt Studio) &copy; 2026 - สื่อการเรียนรู้นวัตกรรมสำหรับครูไทยยุคดิจิทัล</p>
+        </div>
+    </footer>
+
+    <!-- MODAL: Gemini API Key Setting -->
+    <div id="api-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-amber-100 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-500"></i> ตั้งค่า Gemini API Key
+                </h3>
+                <button onclick="closeApiModal()" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label for="api-key-input" class="block text-xs font-semibold text-gray-700 mb-1">Gemini API Key</label>
+                    <div class="relative">
+                        <input type="password" id="api-key-input" placeholder="AIzaSy..." 
+                            class="w-full px-3 py-2 pr-10 rounded-xl border border-gray-300 text-xs outline-none focus:ring-2 focus:ring-amber-400 font-mono">
+                        <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 text-xs">
+                            <i id="eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="model-select" class="block text-xs font-semibold text-gray-700 mb-1">เลือกโมเดล Gemini</label>
+                    <select id="model-select" class="w-full px-3 py-2 rounded-xl border border-gray-300 text-xs outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                        <option value="gemini-2.5-flash" selected>gemini-2.5-flash (แนะนำ - เร็วและเก่ง)</option>
+                        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (เบาประหยัดโควตา)</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro (สำหรับงานซับซ้อนสูง)</option>
+                    </select>
+                </div>
+
+                <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+                    <p class="font-semibold"><i class="fa-solid fa-lightbulb text-amber-500"></i> วิธีขอ API Key ฟรี:</p>
+                    <p class="text-[11px] text-gray-600">
+                        คุณครูสามารถขอรับ API Key ฟรีได้จาก Google AI Studio 
+                        <a href="https://aistudio.google.com/apikey" target="_blank" class="text-purple-600 font-bold underline">คลิกขอรับคีย์ที่นี่ ↗</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2 pt-2">
+                <button onclick="testApiKey()" class="flex-1 py-2 px-3 rounded-xl bg-purple-100 text-purple-800 hover:bg-purple-200 text-xs font-bold border border-purple-200">
+                    🧪 ทดสอบคีย์
+                </button>
+                <button onclick="saveApiKey()" class="flex-1 py-2 px-3 rounded-xl btn-3d-mango text-white text-xs font-bold">
+                    💾 บันทึกคีย์
+                </button>
+                <button onclick="clearApiKey()" class="py-2 px-3 rounded-xl bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 text-xs font-bold">
+                    🗑️ ล้าง
+                </button>
+            </div>
+        </div>
     </div>
-  </main>
 
-  <!-- Modal ตั้งค่า Gemini API Key (เก็บไว้ในเบราว์เซอร์ของผู้ใช้เท่านั้น) -->
-  <div id="apiKeyModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-ink/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="apiModalTitle">
-    <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-[#EFE5D8] bg-white shadow-2xl">
-      <!-- ส่วนหัว Modal -->
-      <div class="flex items-center justify-between border-b border-[#EFE5D8] bg-gradient-to-r from-[#FFF4E0] to-[#F3ECFF] px-5 py-4">
-        <div class="flex items-center gap-2.5">
-          <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-lg shadow-sm">🔑</span>
-          <div>
-            <h2 id="apiModalTitle" class="font-display text-lg font-bold text-ink">ตั้งค่า Gemini API Key</h2>
-            <p class="text-xs text-inkSoft">เปิดใช้งาน AI วิเคราะห์ไฟล์ PDF/รูปภาพ และเกลาพรอมพ์</p>
-          </div>
-        </div>
-        <button type="button" id="btnCloseApiModal" class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/80 text-sm font-bold text-inkSoft transition hover:bg-white hover:text-ink" aria-label="ปิดหน้าต่าง">
-          ✕
-        </button>
-      </div>
-
-      <!-- เนื้อหา Modal -->
-      <div class="space-y-4 p-5">
-        <!-- แจ้งเตือนความปลอดภัย -->
-        <div class="rounded-2xl border border-tealSoft/30 bg-tealSoft/10 p-3.5 text-xs leading-relaxed text-ink">
-          <p class="font-bold text-[#0E7A6F]">🛡️ ปลอดภัย 100% — คีย์ของคุณเก็บไว้เฉพาะในเครื่องนี้</p>
-          <p class="mt-1 text-inkSoft">API Key จะถูกบันทึกไว้ในเบราว์เซอร์ของคุณเอง (<code class="rounded bg-white/80 px-1 font-mono text-[11px]">localStorage</code>) และส่งตรงไปยัง Google Gemini API เท่านั้น ไม่มีการส่งไปเก็บที่เซิร์ฟเวอร์อื่น</p>
-        </div>
-
-        <!-- วิธีขอคีย์ฟรีแบบย่อ -->
-        <div class="rounded-2xl bg-surfaceAlt p-3.5 text-xs text-inkSoft">
-          <p class="font-bold text-ink">📌 วิธีรับ Gemini API Key ฟรี (ใช้เวลา 1 นาที):</p>
-          <ol class="mt-1.5 list-decimal space-y-1 pl-4">
-            <li>เข้าไปที่ <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="font-bold text-grape underline hover:text-grapeEdge">Google AI Studio ↗</a> และเข้าสู่ระบบด้วยบัญชี Google</li>
-            <li>กดปุ่ม <strong>Create API key</strong> แล้วคัดลอกรหัส (ขึ้นต้นด้วย <code class="font-mono">AIza...</code>)</li>
-            <li>นำมาวางในช่องด้านล่างแล้วกด <strong>บันทึกการตั้งค่า</strong></li>
-          </ol>
-        </div>
-
-        <!-- ช่องกรอก API Key -->
-        <div>
-          <label for="apiKeyInput" class="mb-1.5 block text-xs font-bold text-ink">Gemini API Key ของคุณ</label>
-          <div class="relative flex items-center">
-            <input type="password" id="apiKeyInput" autocomplete="off" spellcheck="false" placeholder="วางคีย์ AIzaSy... ที่นี่" class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 py-2.5 pl-3.5 pr-16 font-mono text-xs text-ink placeholder:font-sans placeholder:text-inkSoft/60 focus:border-grape focus:bg-white focus:outline-none focus:ring-2 focus:ring-grape/20" />
-            <button type="button" id="btnToggleApiKeyVis" class="absolute right-2 rounded-xl bg-white px-2.5 py-1 text-xs font-bold text-inkSoft shadow-sm hover:text-ink">
-              👁️ แสดง
-            </button>
-          </div>
-        </div>
-
-        <!-- เลือกโมเดล Gemini -->
-        <div>
-          <label for="geminiModelSelect" class="mb-1.5 block text-xs font-bold text-ink">เลือกโมเดล Gemini</label>
-          <select id="geminiModelSelect" class="w-full rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/60 px-3.5 py-2.5 text-xs font-semibold text-ink focus:border-grape focus:bg-white focus:outline-none focus:ring-2 focus:ring-grape/20">
-            <option value="gemini-2.5-flash">⚡ gemini-2.5-flash (แนะนำ · เร็ว ฉลาด รองรับ PDF/รูปภาพ)</option>
-            <option value="gemini-2.5-flash-lite">🪶 gemini-2.5-flash-lite (เบาและประหยัดโควตาที่สุด)</option>
-            <option value="gemini-2.5-pro">🧠 gemini-2.5-pro (วิเคราะห์ลึกและละเอียดสูงสุด)</option>
-          </select>
-        </div>
-
-        <!-- กล่องแสดงผลการทดสอบคีย์ -->
-        <div id="apiModalFeedback" class="hidden rounded-2xl px-3.5 py-2.5 text-xs font-semibold"></div>
-
-        <!-- ปุ่มควบคุม -->
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <div class="flex items-center gap-2">
-            <button type="button" id="btnTestApiKey" class="inline-flex items-center gap-1.5 rounded-xl border border-[#E7DCCD] bg-white px-3 py-2 text-xs font-bold text-ink shadow-btnSoft transition hover:bg-surfaceAlt active:translate-y-0.5 disabled:opacity-50">
-              <span id="testApiSpinner" class="hidden h-3.5 w-3.5 animate-spin rounded-full border-2 border-grape border-t-transparent"></span>
-              <span>🧪 ทดสอบคีย์</span>
-            </button>
-            <button type="button" id="btnClearApiKey" class="rounded-xl px-3 py-2 text-xs font-bold text-rose-600 transition hover:bg-rose-50">
-              🗑️ ล้างคีย์ออก
-            </button>
-          </div>
-          <button type="button" id="btnSaveApiKey" class="rounded-2xl bg-grape px-5 py-2.5 text-xs font-bold text-white shadow-btnGrape transition hover:brightness-105 active:translate-y-0.5">
-            💾 บันทึกการตั้งค่า
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notification (ใช้แทน alert) -->
-  <div id="toastContainer" class="pointer-events-none fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-2 px-4"></div>
-
-  <script>
-    /**
-     * =========================================================================
-     * ครูพรอมพ์สตูดิโอ - ระบบสร้างพรอมพ์เว็บแอปสื่อการสอน
-     * รวมทุกข้อมูลตั้งค่า ตรรกะการสร้างพรอมพ์ และระบบวิเคราะห์เนื้อหาอัจฉริยะ
-     * =========================================================================
-     */
-
-    const API_KEY_STORAGE_KEY = "eduprompt_gemini_api_key";
-    const MODEL_STORAGE_KEY = "eduprompt_gemini_model";
-    const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-
-    // อ่าน-เขียน API Key และชื่อโมเดลอย่างปลอดภัยผ่าน localStorage
-    function getStoredApiKey() {
-      try {
-        return (localStorage.getItem(API_KEY_STORAGE_KEY) || "").trim();
-      } catch (err) {
-        return "";
-      }
-    }
-
-    function getStoredModel() {
-      try {
-        return localStorage.getItem(MODEL_STORAGE_KEY) || DEFAULT_GEMINI_MODEL;
-      } catch (err) {
-        return DEFAULT_GEMINI_MODEL;
-      }
-    }
-
-    function updateApiStatusUI() {
-      const hasKey = getStoredApiKey().length > 0;
-      const dot = document.getElementById("apiStatusDot");
-      const btn = document.getElementById("btnApiSettings");
-      if (!dot || !btn) return;
-
-      if (hasKey) {
-        dot.className = "h-2.5 w-2.5 rounded-full bg-leaf ring-4 ring-leaf/20";
-        btn.title = `เชื่อมต่อ Gemini API แล้ว (${getStoredModel()})`;
-      } else {
-        dot.className = "h-2.5 w-2.5 rounded-full bg-amber-400";
-        btn.title = "ยังไม่ได้ตั้งค่า Gemini API Key (คลิกเพื่อตั้งค่า)";
-      }
-    }
-
-    // ------------------------- 1. ข้อมูลตัวเลือกทั้งหมด -------------------------
-
-    const SUBJECTS = [
-      { id: "ภาษาไทย", label: "ภาษาไทย", icon: "📖", color: "#16A394", bg: "#E0F7F4" },
-      { id: "คณิตศาสตร์", label: "คณิตศาสตร์", icon: "📐", color: "#EA580C", bg: "#FFEDD5" },
-      { id: "วิทยาศาสตร์และเทคโนโลยี", label: "วิทยาศาสตร์", icon: "🔬", color: "#7C3AED", bg: "#EDE9FE" },
-      { id: "สังคมศึกษา ศาสนา และวัฒนธรรม", label: "สังคมศึกษาฯ", icon: "🌍", color: "#0284C7", bg: "#E0F2FE" },
-      { id: "ภาษาอังกฤษ", label: "ภาษาอังกฤษ", icon: "🔤", color: "#DB2777", bg: "#FCE7F3" },
-      { id: "วิทยาการคำนวณ", label: "วิทยาการคำนวณ", icon: "💻", color: "#4F46E5", bg: "#E0E7FF" },
-      { id: "สุขศึกษาและพลศึกษา", label: "สุขศึกษาฯ", icon: "🏃", color: "#16A34A", bg: "#DCFCE7" },
-      { id: "ศิลปะและดนตรี", label: "ศิลปะ/ดนตรี", icon: "🎨", color: "#D97706", bg: "#FEF3C7" },
-      { id: "custom", label: "ระบุวิชาเอง...", icon: "✏️", color: "#475569", bg: "#F1F5F9" },
-    ];
-
-    const GRADE_GROUPS = [
-      { label: "ปฐมวัย", items: ["อ.1", "อ.2", "อ.3"] },
-      { label: "ประถมศึกษา", items: ["ป.1", "ป.2", "ป.3", "ป.4", "ป.5", "ป.6"] },
-      { label: "มัธยมศึกษาตอนต้น", items: ["ม.1", "ม.2", "ม.3"] },
-      { label: "มัธยมศึกษาตอนปลาย", items: ["ม.4", "ม.5", "ม.6"] },
-      { label: "อื่น ๆ", items: ["อาชีวศึกษา", "อุดมศึกษา", "บุคคลทั่วไป"] },
-    ];
-
-    const KNOWLEDGE_FORMATS = [
-      {
-        id: "slide",
-        name: "รูปแบบสไลด์ (Interactive Slide)",
-        icon: "🎞️",
-        short: "สไลด์อินเทอร์แอกทีฟ",
-        desc: "นำเสนอทีละหน้า มีปุ่มถัดไป-ย้อนกลับ แถบความคืบหน้า และจุดเน้นสำคัญ",
-        promptSpec: [
-          "ออกแบบเป็น Interactive Slide Deck แบ่งเนื้อหาออกเป็น 6-8 สไลด์สั้นกระชับ อ่านง่าย ไม่อัดข้อความแน่นเกินไป",
-          "มีปุ่ม 'ก่อนหน้า' / 'ถัดไป', จุดนำทาง (Slide Dots), แถบ Progress Bar และรองรับการกดลูกศรซ้าย-ขวาหรือปัดหน้าจอ (Swipe) บนมือถือ",
-          "แต่ละสไลด์มีภาพประกอบแบบ SVG หรือการ์ดตัวอย่างที่คลิกเปิดคำอธิบายเสริม (Click-to-Reveal) และปุ่มสรุปใจความสำคัญ (Key Takeaway)"
-        ]
-      },
-      {
-        id: "infographic",
-        name: "รูปแบบอินโฟกราฟิก (Infographic)",
-        icon: "📊",
-        short: "อินโฟกราฟิกโต้ตอบได้",
-        desc: "สรุปความรู้เป็นแผนภาพสีสันสดใส การ์ดเปรียบเทียบ ไอคอน และจุดคลิกดูรายละเอียด",
-        promptSpec: [
-          "ออกแบบเป็น Interactive Visual Infographic แบ่งบล็อกความรู้ด้วยการ์ดสีสันสดใส ไอคอน SVG แผนภาพเปรียบเทียบ และลำดับขั้น (Flow / Steps)",
-          "ใส่ลูกเล่น Interactive เช่น กดปุ่มสลับดูตัวอย่าง (Toggle Tabs), คลิกการ์ดเพื่อขยายคำอธิบาย หรือโหมดเปรียบเทียบข้อแตกต่างอย่างชัดเจน",
-          "จัดวางเลย์เอาต์แบบ Bento Grid / Responsive Cards ที่อ่านง่ายทั้งหน้าจอคอมพิวเตอร์และมือถือ"
-        ]
-      },
-      {
-        id: "website",
-        name: "รูปแบบนำเสนอเว็บไซต์ (Learning Web)",
-        icon: "🌐",
-        short: "เว็บไซต์นำเสนอเนื้อหา",
-        desc: "หน้าเว็บการเรียนรู้แบบเลื่อนอ่าน มีสารบัญย่อย กล่องสรุปกฎเกณฑ์ และตัวอย่างประกอบ",
-        promptSpec: [
-          "ออกแบบเป็น Modern Educational Micro-Website แบบเลื่อนอ่าน (Scrolling Storytelling) แบ่งเป็น Section ชัดเจนพร้อมแถบสารบัญนำทาง",
-          "ประกอบด้วย Hero Banner เกริ่นนำจุดประสงค์การเรียนรู้, กล่องนิยาม/หลักการสำคัญ, ตารางหรือการ์ดตัวอย่างประกอบ และกล่อง 'ข้อควรระวัง/จุดที่มักสับสน'",
-          "มีปุ่มเช็กลิสต์ 'อ่านเข้าใจแล้ว' ในแต่ละหัวข้อเพื่อเก็บคะแนนความคืบหน้าก่อนไปทำแบบฝึกหัด"
-        ]
-      },
-      {
-        id: "flashcards",
-        name: "รูปแบบแฟลชการ์ด (3D Flashcards)",
-        icon: "🃏",
-        short: "แฟลชการ์ดพลิกได้",
-        desc: "การ์ดความรู้แบบพลิกหน้า-หลัง 3 มิติ ด้านหน้าเป็นหัวข้อ ด้านหลังเป็นคำอธิบายและตัวอย่าง",
-        promptSpec: [
-          "ออกแบบเป็นชุด Interactive 3D Flip Flashcards อย่างน้อย 8-12 ใบ พร้อมแอนิเมชันพลิกการ์ดอย่างนุ่มนวล",
-          "ด้านหน้าแสดงคำสำคัญ/กฎ/ภาพไอคอน ด้านหลังแสดงความหมาย ตัวอย่างการใช้งาน และเทคนิคการจำ",
-          "มีปุ่มทำเครื่องหมาย 'จำได้แล้ว' / 'ทบทวนอีกครั้ง', ปุ่มสับการ์ด (Shuffle) และตัวนับความก้าวหน้า"
-        ]
-      }
-    ];
-
-    const EXERCISES = [
-      {
-        id: "short_answer",
-        name: "ตอบคำถามสั้น",
-        icon: "✍️",
-        desc: "พิมพ์คำตอบสั้น ๆ ตรวจอัตโนมัติพร้อมเฉลยแนวคิด",
-        promptSpec: "แบบฝึกหัดตอบคำถามสั้น (Short Answer): มีช่องให้ผู้เรียนพิมพ์คำตอบ ระบบตรวจคำตอบอัตโนมัติโดยตัดช่องว่างส่วนเกินและรองรับคำตอบที่ถูกต้องได้หลายรูปแบบ (Synonyms/Keywords) พร้อมปุ่มขอคำใบ้ (Hint) และแสดงเฉลยละเอียด"
-      },
-      {
-        id: "relationship",
-        name: "วิเคราะห์ความสัมพันธ์",
-        icon: "🔗",
-        desc: "จัดกลุ่ม แยกประเภท หรือเชื่อมโยงเหตุ-ผล",
-        promptSpec: "แบบฝึกหัดวิเคราะห์ความสัมพันธ์ (Relationship & Categorization): ให้ผู้เรียนวิเคราะห์เชื่อมโยงเหตุ-ผล หรือจัดหมวดหมู่การ์ดข้อมูลลงในกล่องประเภทที่ถูกต้อง รองรับทั้งการคลิกเลือกและลากวาง (Click-to-Assign / Drag & Drop) พร้อมอธิบายเหตุผลของความสัมพันธ์"
-      },
-      {
-        id: "true_false",
-        name: "ถูก - ผิด",
-        icon: "✅",
-        desc: "พิจารณาข้อความว่าจริงหรือเท็จ พร้อมเหตุผลเฉลย",
-        promptSpec: "แบบฝึกหัดถูก-ผิด (True / False): แสดงข้อความสถานการณ์หรือหลักการทีละข้อ ให้กดปุ่ม 'ถูก' หรือ 'ผิด' ขนาดใหญ่ เมื่อตอบแล้วแสดงฟีดแบ็กทันทีพร้อมคำอธิบายว่าข้อความนั้นถูกหรือผิดเพราะอะไร"
-      },
-      {
-        id: "fill_blank",
-        name: "เติมคำในช่องว่าง",
-        icon: "📝",
-        desc: "เติมคำสำคัญลงในประโยค (เลือกจากคลังคำหรือพิมพ์)",
-        promptSpec: "แบบฝึกหัดเติมคำในช่องว่าง (Fill in the Blanks): แสดงประโยคที่มีช่องว่างไฮไลต์ชัด ให้ผู้เรียนคลิกเลือกคำจากคลังคำ (Word Bank) มาเติม หรือพิมพ์เติมลงในช่องว่างได้โดยตรง พร้อมปุ่มตรวจคำตอบและรีเซ็ต"
-      },
-      {
-        id: "matching",
-        name: "แบบโยงเส้นจับคู่",
-        icon: "🔀",
-        desc: "คลิกหรือลากเส้น SVG โยงจับคู่คอลัมน์ซ้าย-ขวา",
-        promptSpec: "แบบฝึกหัดโยงเส้นจับคู่ (Interactive Line Matching): แสดงรายการฝั่งซ้ายและฝั่งขวา ให้ผู้เรียนคลิกจุดเชื่อมฝั่งซ้ายแล้วคลิกฝั่งขวาเพื่อวาดเส้น SVG สีสันสดใสเชื่อมต่อกัน (รองรับทั้งเมาส์และหน้าจอสัมผัส 100%) เมื่อตรวจคำตอบ เส้นที่ถูกเป็นสีเขียว เส้นที่ผิดเป็นสีแดงพร้อมเฉลยคู่ที่ถูกต้อง"
-      }
-    ];
-
-    const ACTIVITIES = [
-      {
-        id: "bingo",
-        name: "กิจกรรม Bingo ความรู้",
-        icon: "🎯",
-        short: "เกม Bingo",
-        desc: "ตารางบิงโกสุ่มคำตอบ ระบบสุ่มโจทย์/คำใบ้ ตรวจแนวบิงโกอัตโนมัติ",
-        promptSpec: [
-          "สร้างเกม Bingo ความรู้แบบ Interactive ตาราง 3x3 หรือ 4x4 (มีช่อง FREE ตรงกลางสำหรับ 3x3 หรือสุ่มเต็มตาราง)",
-          "มีปุ่ม 'สุ่มโจทย์/คำใบ้ถัดไป' แสดงคำถามหรือนิยามด้านบน ผู้เรียนต้องคลิกเลือกช่องคำตอบที่ตรงกับโจทย์บนกระดานบิงโกของตนเอง",
-          "หากเลือกถูก ช่องจะติดสติกเกอร์ดาวพร้อมเสียงเอฟเฟกต์ หากผิดจะสั่นเตือนเบา ๆ และระบบตรวจจับเส้น BINGO อัตโนมัติทั้งแนวนอน แนวตั้ง แนวทแยง พร้อมพลุฉลอง Confetti เมื่อชนะ"
-        ]
-      },
-      {
-        id: "jigsaw",
-        name: "กิจกรรมจิ๊กซอว์ความรู้",
-        icon: "🧩",
-        short: "เกมจิ๊กซอว์",
-        desc: "ตอบคำถามปลดล็อกหรือลากวางชิ้นส่วนจิ๊กซอว์เพื่อต่อภาพ/แผนผังให้สมบูรณ์",
-        promptSpec: [
-          "สร้างเกมจิ๊กซอว์ความรู้ (Educational Jigsaw Puzzle) ขนาด 3x3 (9 ชิ้นส่วน) ที่วาดภาพหรือแผนผังสรุปบทเรียนด้วย SVG/Canvas คมชัดสวยงาม",
-          "ผู้เรียนต้องเลือกชิ้นส่วนจิ๊กซอว์และตอบคำถามประจำชิ้นส่วนให้ถูกต้อง หรือจับคู่ชิ้นส่วนที่มีโจทย์-คำตอบเชื่อมโยงกันลงในช่องกระดานให้ครบทุกชิ้น",
-          "เมื่อประกอบครบทุกชิ้น ภาพสรุปความรู้จะเรืองแสงสมบูรณ์พร้อมคะแนน โบนัสเวลา และเอฟเฟกต์ Confetti"
-        ]
-      },
-      {
-        id: "snakes_ladders",
-        name: "กิจกรรมบันไดงูพิชิตความรู้",
-        icon: "🐍",
-        short: "เกมบันไดงู",
-        desc: "ทอยลูกเต๋าเดินหมาก ตอบคำถามขึ้นบันได หลบงู เล่นได้ 1-2 ทีม",
-        promptSpec: [
-          "สร้างเกมกระดานบันไดงู (Snakes & Ladders Knowledge Board) ขนาด 25 ช่อง (5x5) ดีไซน์สีสันสดใสพร้อมภาพบันไดและงูด้วย SVG ที่ชัดเจน",
-          "รองรับโหมดเล่นคนเดียว หรือแข่ง 2 ทีม (ผู้เล่น 1 vs ผู้เล่น 2) มีปุ่มทอยลูกเต๋าพร้อมแอนิเมชันหมุนและเดินตัวหมากทีละช่องอย่างนุ่มนวล",
-          "เมื่อตกช่องพิเศษ (หัวบันได/หัวงู/ช่องคำถาม) จะเด้งการ์ดคำถามขึ้นมา: ตอบถูกจะได้ขึ้นบันไดหรือป้องกันการตกงู ตอบผิดจะไถลลงตามงู ใครถึงเส้นชัยช่อง 25 ก่อนเป็นผู้ชนะ"
-        ]
-      },
-      {
-        id: "memory",
-        name: "เกมเปิดป้ายจับคู่ความจำ",
-        icon: "🎴",
-        short: "เกมจับคู่การ์ด",
-        desc: "พลิกการ์ดจับคู่โจทย์-คำตอบ หรือคำศัพท์-ความหมาย แข่งทำสถิติ",
-        promptSpec: [
-          "สร้างเกมเปิดป้ายจับคู่ความจำ (Memory Match) จำนวน 12-16 ใบ (6-8 คู่) โดยจับคู่ระหว่างคำศัพท์/โจทย์ กับความหมาย/คำตอบที่สอดคล้องกัน",
-          "มีแอนิเมชันพลิกการ์ด 3 มิติ ตัวนับจำนวนครั้งที่เปิด ตัวจับเวลา และระบบ Combo เมื่อจับคู่ถูกต่อเนื่อง",
-          "เมื่อจับคู่ครบทุกคู่ แสดงสรุปความรู้ทั้งหมดที่ได้จับคู่ไปพร้อมเหรียญรางวัล 1-3 ดาว"
-        ]
-      },
-      {
-        id: "wheel",
-        name: "วงล้อสุ่มภารกิจความรู้",
-        icon: "🎡",
-        short: "วงล้อสุ่มคำถาม",
-        desc: "หมุนวงล้อสีสันสดใสสุ่มหัวข้อ/ระดับคะแนน แล้วตอบคำถามสะสมแต้ม",
-        promptSpec: [
-          "สร้างกิจกรรมวงล้อสุ่มคำถาม (Interactive Spin Wheel) วาดด้วย Canvas/SVG 8 ช่องสีสันสดใส มีฟิสิกส์การหมุนและค่อย ๆ ชะลอหยุดพร้อมเสียงติ๊ก ๆ จาก Web Audio API",
-          "เมื่อวงล้อหยุด จะสุ่มคำถามตามหมวดหรือคะแนนพิเศษ (เช่น +100, +200, โบนัส x2) ขึ้นมาให้ผู้เรียนหรือนักเรียนในห้องช่วยกันตอบ",
-          "เก็บสถิติคะแนนรวม รอบที่เล่น และสามารถหมุนต่อได้จนครบภารกิจ"
-        ]
-      },
-      {
-        id: "none",
-        name: "ไม่ใส่กิจกรรมเกมเพิ่มเติม",
-        icon: "➖",
-        short: "ไม่มีเกมเสริม",
-        desc: "เน้นโครงสร้างกระชับ: ใบความรู้ → แบบฝึกหัด → แบบทดสอบหลังเรียน",
-        promptSpec: []
-      }
-    ];
-
-    const POST_TEST_TYPES = [
-      { id: "mcq", label: "แบบเลือกตอบ", desc: "ปรนัยเลือกคำตอบที่ถูกที่สุด" },
-      { id: "tf", label: "แบบถูก-ผิด", desc: "พิจารณาความถูกต้องของข้อความ" },
-      { id: "mixed", label: "แบบผสม", desc: "เลือกตอบ + วิเคราะห์สถานการณ์" },
-    ];
-
-    const QUICK_PRESETS = [
-      {
-        label: "📖 ภาษาไทย ป.5 · คำเป็น คำตาย",
-        data: {
-          subject: "ภาษาไทย",
-          topic: "คำเป็น คำตาย",
-          grade: "ป.5",
-          theme: "สดใสน่ารัก พาสเทล เป็นมิตรกับเด็ก (Playful Pastel Soft 3D)",
-          knowledgeFormat: "infographic",
-          exercises: ["relationship", "matching"],
-          exerciseItemCount: 6,
-          activities: ["bingo", "memory"],
-          postTestEnabled: true,
-          postTestType: "mcq",
-          choiceCount: 4,
-          questionCount: 10
-        }
-      },
-      {
-        label: "📐 คณิต ป.4 · เศษส่วน",
-        data: {
-          subject: "คณิตศาสตร์",
-          topic: "เศษส่วนแท้ เศษเกิน และจำนวนคละ",
-          grade: "ป.4",
-          theme: "ผจญภัยแฟนตาซี เวทมนตร์น่าตื่นเต้น (Fantasy Quest)",
-          knowledgeFormat: "slide",
-          exercises: ["fill_blank", "true_false"],
-          exerciseItemCount: 5,
-          activities: ["snakes_ladders", "wheel"],
-          postTestEnabled: true,
-          postTestType: "mcq",
-          choiceCount: 4,
-          questionCount: 10
-        }
-      },
-      {
-        label: "🔬 วิทย์ ม.1 · เซลล์สิ่งมีชีวิต",
-        data: {
-          subject: "วิทยาศาสตร์และเทคโนโลยี",
-          topic: "โครงสร้างและหน้าที่ของเซลล์พืชและเซลล์สัตว์",
-          grade: "ม.1",
-          theme: "อวกาศ วิทยาศาสตร์ ไซไฟทันสมัย (Sci-Fi Space Explorer)",
-          knowledgeFormat: "website",
-          exercises: ["matching", "short_answer", "relationship"],
-          exerciseItemCount: 6,
-          activities: ["jigsaw", "bingo"],
-          postTestEnabled: true,
-          postTestType: "mixed",
-          choiceCount: 4,
-          questionCount: 15
-        }
-      },
-      {
-        label: "🔤 อังกฤษ ป.6 · Daily Routines",
-        data: {
-          subject: "ภาษาอังกฤษ",
-          topic: "Daily Routines & Present Simple Tense",
-          grade: "ป.6",
-          theme: "สดใสน่ารัก พาสเทล เป็นมิตรกับเด็ก (Playful Pastel Soft 3D)",
-          knowledgeFormat: "flashcards",
-          exercises: ["fill_blank", "matching"],
-          exerciseItemCount: 8,
-          activities: ["memory", "wheel"],
-          postTestEnabled: true,
-          postTestType: "mcq",
-          choiceCount: 4,
-          questionCount: 10
-        }
-      }
-    ];
-
-    // ------------------------- 2. สถานะของแอปพลิเคชัน (State) -------------------------
-
-    const state = {
-      subject: "ภาษาไทย",
-      customSubject: "",
-      topic: "คำเป็น คำตาย",
-      theme: "สดใสน่ารัก พาสเทล เป็นมิตรกับเด็ก (Playful Pastel Soft 3D)",
-      grade: "ป.5",
-      knowledgeFormat: "infographic",
-      exercises: ["matching", "true_false"],
-      exerciseItemCount: 5,
-      activities: ["bingo"],
-      postTestEnabled: true,
-      postTestType: "mcq",
-      choiceCount: 4,
-      questionCount: 10,
-      optShuffle: true,
-      optExplain: true,
-      optCertificate: true,
-      optTimer: false,
-
-      // ข้อมูลไฟล์/ข้อความที่อัปโหลด
-      inputMode: "file", // "file" | "paste"
-      uploadedFile: null, // { name, size, mimeType, kind: "text"|"inline", textContent, base64Data }
-      pastedText: "",
-      analysisResult: null,
-
-      // โหมดแก้ไขพรอมพ์เอง
-      isEditMode: false,
-      customPromptText: "",
-    };
-
-    // ------------------------- 3. ฟังก์ชันช่วยเหลือพื้นฐาน -------------------------
-
-    function getActiveSubject() {
-      if (state.subject === "custom") {
-        return state.customSubject.trim() || "วิชาทั่วไป";
-      }
-      return state.subject;
-    }
-
-    function getSubjectMeta() {
-      return SUBJECTS.find(s => s.id === state.subject) || SUBJECTS[0];
-    }
-
-    function escapeHtml(str) {
-      return String(str || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    function showToast(message, type = "success") {
-      const container = document.getElementById("toastContainer");
-      const toast = document.createElement("div");
-      const colorClass = type === "error"
-        ? "bg-rose-600 text-white"
-        : type === "info"
-        ? "bg-grape text-white"
-        : "bg-ink text-white";
-      toast.className = `pointer-events-auto rounded-2xl px-4 py-2.5 text-xs font-bold shadow-lg transition-all duration-300 ${colorClass}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.transform = "translateY(8px)";
-        setTimeout(() => toast.remove(), 300);
-      }, 2800);
-    }
-
-    function showErrorBox(msg) {
-      const box = document.getElementById("aiErrorBox");
-      if (!msg) {
-        box.classList.add("hidden");
-        box.textContent = "";
-      } else {
-        box.textContent = "⚠️ " + msg;
-        box.classList.remove("hidden");
-      }
-    }
-
-    function formatFileSize(bytes) {
-      if (bytes < 1024) return bytes + " B";
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-      return (bytes / (1024 * 1024)).toFixed(2) + " MB";
-    }
-
-    // ------------------------- 4. เครื่องมือประกอบพรอมพ์ (Prompt Builder) -------------------------
-
-    function buildPromptText() {
-      const subjectName = getActiveSubject();
-      const topicName = state.topic.trim() || "หัวข้อบทเรียนตามหลักสูตร";
-      const knowledgeObj = KNOWLEDGE_FORMATS.find(k => k.id === state.knowledgeFormat) || KNOWLEDGE_FORMATS[0];
-      const selectedExercises = EXERCISES.filter(e => state.exercises.includes(e.id));
-      const selectedActivities = ACTIVITIES.filter(a => a.id !== "none" && state.activities.includes(a.id));
-      const postTypeObj = POST_TEST_TYPES.find(t => t.id === state.postTestType) || POST_TEST_TYPES[0];
-
-      // โครงสร้างแถบนำทางในเว็บแอปสื่อการสอน
-      const navModules = ["1. หน้าแรก/จุดประสงค์", `2. ใบความรู้ (${knowledgeObj.short})`];
-      if (selectedExercises.length > 0) navModules.push(`3. แบบฝึกหัดระหว่างเรียน (${selectedExercises.length} ชุด)`);
-      if (selectedActivities.length > 0) {
-        const actLabel = selectedActivities.length === 1
-          ? selectedActivities[0].short
-          : `${selectedActivities.length} เกม: ${selectedActivities.map(a => a.short).join(", ")}`;
-        navModules.push(`4. กิจกรรมเกม (${actLabel})`);
-      }
-      if (state.postTestEnabled) navModules.push(`5. แบบทดสอบหลังเรียน (${state.questionCount} ข้อ)`);
-
-      const lines = [];
-      lines.push(`สร้างเว็บแอปพลิเคชันสื่อการสอนแบบ Single-File HTML (Interactive Learning Web App) วิชา "${subjectName}" เรื่อง "${topicName}" สำหรับผู้เรียนระดับชั้น ${state.grade}`);
-      lines.push("");
-
-      // 1. แนวคิดและโครงสร้างหลัก
-      lines.push("🎯 1. แนวคิดหลักและการออกแบบ (Core Concept & UI/UX)");
-      lines.push(`- กลุ่มเป้าหมาย: นักเรียนระดับชั้น ${state.grade} (ปรับระดับภาษา ขนาดตัวอักษร ความยากของเนื้อหา และปุ่มกดให้เหมาะกับช่วงวัย)`);
-      lines.push(`- ธีมและอารมณ์ภาพ (Visual Theme): ${state.theme}`);
-      lines.push(`- โครงสร้างแถบนำทาง (Learning Flow): แบ่งเป็นโมดูลที่คลิกสลับได้ชัดเจนและแสดงแถบความคืบหน้า (Progress Bar) ได้แก่ ${navModules.join(" → ")}`);
-      lines.push("- การออกแบบ Responsive: ใช้งานได้ดีเยี่ยมทั้งบนมือถือ แท็บเล็ต และหน้าจอคอมพิวเตอร์ ปุ่มกดมีขนาดเหมาะกับนิ้วสัมผัสและรองรับทั้งเมาส์และ Touch");
-      lines.push("");
-
-      // 2. เนื้อหาใบความรู้
-      lines.push(`📚 2. ส่วนเนื้อหาใบความรู้: ${knowledgeObj.name}`);
-      knowledgeObj.promptSpec.forEach(item => lines.push(`- ${item}`));
-      lines.push(`- เนื้อหาต้องถูกต้องตามหลักวิชาการวิชา ${subjectName} ระดับชั้น ${state.grade} ครอบคลุมนิยาม หลักการสำคัญ ตัวอย่างจริง และสรุปทริกช่วยจำ`);
-      lines.push("");
-
-      // 3. แบบฝึกหัดระหว่างเรียน
-      if (selectedExercises.length > 0) {
-        lines.push(`✍️ 3. ส่วนแบบฝึกหัดระหว่างเรียน (จำนวน ${selectedExercises.length} รูปแบบ, รูปแบบละ ${state.exerciseItemCount} ข้อ)`);
-        selectedExercises.forEach((ex, idx) => {
-          lines.push(`  3.${idx + 1} ${ex.promptSpec}`);
-        });
-        lines.push("- ทุกแบบฝึกหัดต้องมีปุ่ม 'ตรวจคำตอบ', แสดงคะแนนทันที, เอฟเฟกต์เสียงตอบถูก/ผิดจาก Web Audio API และปุ่ม 'ลองทำใหม่'");
-        lines.push("");
-      }
-
-      // 4. กิจกรรมเกมระหว่างเรียน (รองรับทั้ง 1 กิจกรรม และหลายกิจกรรมพร้อมกัน)
-      if (selectedActivities.length > 0) {
-        if (selectedActivities.length === 1) {
-          const actObj = selectedActivities[0];
-          lines.push(`🎲 4. ส่วนกิจกรรมเกมระหว่างเรียน: ${actObj.name}`);
-          actObj.promptSpec.forEach(item => lines.push(`- ${item}`));
-        } else {
-          lines.push(`🎲 4. ส่วนกิจกรรมเกมระหว่างเรียน (ศูนย์รวมเกม ${selectedActivities.length} กิจกรรม)`);
-          lines.push(`- จัดทำหน้าศูนย์รวมเกม (Game Hub / Tabs) ให้ผู้เรียนเลือกเล่นสลับไปมาระหว่างทั้ง ${selectedActivities.length} เกมได้อิสระ พร้อมแสดงสถานะเกมที่เล่นผ่านแล้วและคะแนนสะสมรวม`);
-          selectedActivities.forEach((actObj, idx) => {
-            lines.push(`  เกมที่ ${idx + 1}: ${actObj.name}`);
-            actObj.promptSpec.forEach(item => lines.push(`    • ${item}`));
-          });
-        }
-        lines.push(`- เนื้อหาและโจทย์ทั้งหมดภายในเกมต้องเชื่อมโยงกับเรื่อง "${topicName}" โดยตรง พร้อมปุ่มอ่านกติกาและปุ่มเริ่มเล่นใหม่ (Play Again)`);
-        lines.push("");
-      }
-
-      // 5. แบบทดสอบหลังเรียน
-      const nextNum = selectedActivities.length > 0 ? 5 : 4;
-      if (state.postTestEnabled) {
-        lines.push(`📝 ${nextNum}. ส่วนแบบทดสอบหลังเรียน (Post-Test)`);
-        const choiceDetail = state.postTestType === "tf"
-          ? "แบบถูก-ผิด (2 ตัวเลือก: ถูก / ผิด)"
-          : `${postTypeObj.label} จำนวน ${state.choiceCount} ตัวเลือกต่อข้อ`;
-        lines.push(`- รูปแบบข้อสอบ: ${choiceDetail} จำนวนทั้งหมด ${state.questionCount} ข้อ (ครอบคลุมความจำ ความเข้าใจ และการนำไปใช้)`);
-
-        const features = [];
-        if (state.optShuffle) features.push("สลับลำดับข้อและตัวเลือกอัตโนมัติทุกครั้งที่เริ่มสอบใหม่");
-        if (state.optExplain) features.push("แสดงเฉลยละเอียดพร้อมคำอธิบายเหตุผลทีละข้อหลังส่งคำตอบ");
-        if (state.optTimer) features.push("มีนาฬิกาจับเวลาทำแบบทดสอบพร้อมแจ้งเตือนเวลาคงเหลือ");
-        if (state.optCertificate) features.push("หน้าสรุปผลคะแนน (เกณฑ์ผ่าน 70%) พร้อมดาวประเมินและเกียรติบัตรดิจิทัลที่ผู้เรียนกรอกชื่อตนเองและกดบันทึก/พิมพ์ได้");
-        if (features.length > 0) {
-          lines.push(`- ฟังก์ชันประเมินผล: ${features.join(", ")}`);
-        }
-        lines.push("");
-      }
-
-      // เนื้อหาอ้างอิงจากการอัปโหลดไฟล์หรือวิเคราะห์ AI (ถ้ามี)
-      const extraBlockNum = (state.postTestEnabled ? nextNum + 1 : nextNum);
-      const hasRawContent = (state.inputMode === "paste" && state.pastedText.trim().length > 0)
-        || (state.inputMode === "file" && state.uploadedFile && state.uploadedFile.textContent);
-
-      if (state.analysisResult || hasRawContent) {
-        lines.push(`📌 ${extraBlockNum}. ขอบเขตเนื้อหาอ้างอิงจากเอกสารของผู้สอน (Source Material)`);
-        if (state.analysisResult) {
-          if (state.analysisResult.summary) {
-            lines.push(`- สรุปสาระสำคัญ: ${state.analysisResult.summary}`);
-          }
-          if (Array.isArray(state.analysisResult.keyConcepts) && state.analysisResult.keyConcepts.length > 0) {
-            lines.push(`- ประเด็นหลักที่ต้องมีในสื่อการสอน: ${state.analysisResult.keyConcepts.join(" | ")}`);
-          }
-          if (state.analysisResult.sampleContentForPrompt) {
-            lines.push(`- รายละเอียด/คลังคำศัพท์/โจทย์อ้างอิง: ${state.analysisResult.sampleContentForPrompt}`);
-          }
-        } else if (hasRawContent) {
-          const rawStr = state.inputMode === "paste"
-            ? state.pastedText.trim()
-            : (state.uploadedFile.textContent || "").trim();
-          const excerpt = rawStr.length > 900 ? rawStr.slice(0, 900) + "..." : rawStr;
-          lines.push("- ให้ดึงข้อมูลและสาระสำคัญจากข้อความด้านล่างไปสร้างเป็นใบความรู้ แบบฝึกหัด กิจกรรม และข้อสอบโดยตรง:");
-          lines.push(`\"\"\"\n${excerpt}\n\"\"\"`);
-        }
-        lines.push("");
-      }
-
-      // เทคโนโลยีและข้อกำหนดด้านคุณภาพโค้ด
-      const techNum = (state.analysisResult || hasRawContent) ? extraBlockNum + 1 : extraBlockNum;
-      lines.push(`🛠️ ${techNum}. ข้อกำหนดทางเทคนิคและการส่งมอบโค้ด (Tech Stack & Quality Rules)`);
-      lines.push("- รวมโค้ดทั้งหมด (HTML, CSS, JavaScript) ให้อยู่ในไฟล์เดียว (`index.html`) ที่รันได้ทันทีโดยไม่ต้องติดตั้งเซิร์ฟเวอร์");
-      lines.push("- ใช้ Tailwind CSS (cdn.tailwindcss.com), Google Fonts ภาษาไทย ('Mali' / 'Prompt' / 'Noto Sans Thai'), และ Canvas Confetti สำหรับเอฟเฟกต์ฉลอง");
-      lines.push("- ใช้ Web Audio API สร้างเสียงเอฟเฟกต์ในตัว (เสียงคลิก, เสียงตอบถูก, เสียงตอบผิด, เสียงชนะ) พร้อมปุ่มเปิด-ปิดเสียง (ไม่ใช้ URL ไฟล์เสียงภายนอก)");
-      lines.push("- ใช้ SVG วาดภาพประกอบ ไอคอน และกระดานเกมอย่างสวยงาม (ไม่ใช้ลิงก์รูปภาพภายนอกที่อาจโหลดไม่ขึ้น)");
-      lines.push("- ห้ามใช้คำสั่ง alert() หรือ confirm() โดยเด็ดขาด ให้ใช้ Custom Modal หรือ Toast Notification ที่สวยงามตามธีมแทน");
-      lines.push("- เขียนโค้ด JavaScript ที่สะอาด รัดกุม มีการจัดการ Error ด้วย try...catch และตรวจสอบว่าทุกปุ่ม ทุกแบบฝึกหัด ทุกเกม และข้อสอบทำงานได้สมบูรณ์ 100%");
-
-      return lines.join("\n");
-    }
-
-    // ------------------------- 5. การเรนเดอร์ UI แต่ละส่วน -------------------------
-
-    function renderPresets() {
-      const wrap = document.getElementById("presetButtons");
-      wrap.innerHTML = "";
-      QUICK_PRESETS.forEach(preset => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "rounded-xl border border-[#E7DCCD] bg-surfaceAlt px-3 py-1.5 text-xs font-bold text-ink transition hover:border-mango hover:bg-mango/15 active:translate-y-0.5";
-        btn.textContent = preset.label;
-        btn.addEventListener("click", () => applyPreset(preset.data, preset.label));
-        wrap.appendChild(btn);
-      });
-    }
-
-    function applyPreset(data, label) {
-      state.subject = data.subject;
-      state.customSubject = "";
-      state.topic = data.topic;
-      state.grade = data.grade;
-      state.theme = data.theme;
-      state.knowledgeFormat = data.knowledgeFormat;
-      state.exercises = [...data.exercises];
-      state.exerciseItemCount = data.exerciseItemCount;
-      state.activities = Array.isArray(data.activities)
-        ? [...data.activities]
-        : (data.activity && data.activity !== "none" ? [data.activity] : []);
-      state.postTestEnabled = data.postTestEnabled;
-      state.postTestType = data.postTestType;
-      state.choiceCount = data.choiceCount;
-      state.questionCount = data.questionCount;
-      state.isEditMode = false;
-
-      syncInputsFromState();
-      renderAll();
-      showToast(`โหลดตัวอย่าง "${label}" เรียบร้อยแล้ว ✨`);
-    }
-
-    function syncInputsFromState() {
-      document.getElementById("topicInput").value = state.topic;
-      document.getElementById("customSubjectInput").value = state.customSubject;
-      document.getElementById("themeSelect").value = state.theme;
-      document.getElementById("postTestEnabled").checked = state.postTestEnabled;
-      document.getElementById("customQuestionCount").value = state.questionCount;
-      document.getElementById("optShuffle").checked = state.optShuffle;
-      document.getElementById("optExplain").checked = state.optExplain;
-      document.getElementById("optCertificate").checked = state.optCertificate;
-      document.getElementById("optTimer").checked = state.optTimer;
-      document.getElementById("customSubjectWrap").classList.toggle("hidden", state.subject !== "custom");
-      document.getElementById("postTestConfigWrap").classList.toggle("hidden", !state.postTestEnabled);
-    }
-
-    function renderSubjects() {
-      const grid = document.getElementById("subjectGrid");
-      grid.innerHTML = "";
-      SUBJECTS.forEach(subj => {
-        const isActive = state.subject === subj.id;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "flex items-center gap-2 rounded-2xl border-2 border-mango bg-mango/15 px-3 py-2.5 text-left text-xs font-bold text-ink shadow-sm transition sm:text-sm"
-          : "flex items-center gap-2 rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/50 px-3 py-2.5 text-left text-xs font-semibold text-inkSoft transition hover:border-mango/60 hover:bg-white sm:text-sm";
-        btn.innerHTML = `<span class="text-base">${subj.icon}</span><span class="truncate">${subj.label}</span>`;
-        btn.addEventListener("click", () => {
-          state.subject = subj.id;
-          state.isEditMode = false;
-          document.getElementById("customSubjectWrap").classList.toggle("hidden", subj.id !== "custom");
-          renderSubjects();
-          updatePreview();
-        });
-        grid.appendChild(btn);
-      });
-    }
-
-    function renderGrades() {
-      const wrap = document.getElementById("gradeGroups");
-      wrap.innerHTML = "";
-      GRADE_GROUPS.forEach(group => {
-        const row = document.createElement("div");
-        row.className = "flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3";
-
-        const labelEl = document.createElement("span");
-        labelEl.className = "w-32 shrink-0 text-xs font-bold text-inkSoft";
-        labelEl.textContent = group.label;
-        row.appendChild(labelEl);
-
-        const pills = document.createElement("div");
-        pills.className = "flex flex-wrap gap-1.5";
-        group.items.forEach(grade => {
-          const isActive = state.grade === grade;
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = isActive
-            ? "rounded-xl bg-tealSoft px-3 py-1.5 text-xs font-bold text-white shadow-sm transition"
-            : "rounded-xl border border-[#E7DCCD] bg-surfaceAlt/60 px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-tealSoft/60 hover:bg-white";
-          btn.textContent = grade;
-          btn.addEventListener("click", () => {
-            state.grade = grade;
-            state.isEditMode = false;
-            renderGrades();
-            updatePreview();
-          });
-          pills.appendChild(btn);
-        });
-        row.appendChild(pills);
-        wrap.appendChild(row);
-      });
-    }
-
-    function renderKnowledgeFormats() {
-      const grid = document.getElementById("knowledgeFormatGrid");
-      grid.innerHTML = "";
-      KNOWLEDGE_FORMATS.forEach(fmt => {
-        const isActive = state.knowledgeFormat === fmt.id;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "flex items-start gap-3 rounded-2xl border-2 border-grape bg-grape/10 p-3.5 text-left shadow-sm transition"
-          : "flex items-start gap-3 rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/40 p-3.5 text-left transition hover:border-grape/50 hover:bg-white";
-        btn.innerHTML = `
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xl shadow-sm">${fmt.icon}</span>
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="text-sm font-bold text-ink">${fmt.name}</span>
-            </div>
-            <p class="mt-0.5 text-xs leading-relaxed text-inkSoft">${fmt.desc}</p>
-          </div>
-        `;
-        btn.addEventListener("click", () => {
-          state.knowledgeFormat = fmt.id;
-          state.isEditMode = false;
-          renderKnowledgeFormats();
-          updatePreview();
-        });
-        grid.appendChild(btn);
-      });
-    }
-
-    function renderExercises() {
-      const grid = document.getElementById("exerciseGrid");
-      grid.innerHTML = "";
-      EXERCISES.forEach(ex => {
-        const isActive = state.exercises.includes(ex.id);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "flex items-start gap-3 rounded-2xl border-2 border-berry bg-berry/10 p-3 text-left shadow-sm transition"
-          : "flex items-start gap-3 rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/40 p-3 text-left transition hover:border-berry/50 hover:bg-white";
-        btn.innerHTML = `
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">${ex.icon}</span>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-sm font-bold text-ink">${ex.name}</span>
-              <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${isActive ? "bg-berry text-white" : "border border-[#D5C9BA] bg-white text-transparent"}">✓</span>
-            </div>
-            <p class="mt-0.5 text-xs text-inkSoft">${ex.desc}</p>
-          </div>
-        `;
-        btn.addEventListener("click", () => {
-          if (state.exercises.includes(ex.id)) {
-            state.exercises = state.exercises.filter(id => id !== ex.id);
-          } else {
-            state.exercises.push(ex.id);
-          }
-          state.isEditMode = false;
-          renderExercises();
-          updatePreview();
-        });
-        grid.appendChild(btn);
-      });
-
-      document.getElementById("exerciseCountBadge").textContent =
-        state.exercises.length > 0 ? `เลือกแล้ว ${state.exercises.length} รูปแบบ` : "ไม่ได้เลือกแบบฝึกหัด";
-
-      // จำนวนข้อต่อแบบฝึกหัด
-      const countWrap = document.getElementById("exerciseItemCountBtns");
-      countWrap.innerHTML = "";
-      [3, 5, 6, 8, 10].forEach(num => {
-        const isActive = state.exerciseItemCount === num;
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = isActive
-          ? "rounded-xl bg-berry px-3 py-1 text-xs font-bold text-white shadow-sm"
-          : "rounded-xl bg-white px-3 py-1 text-xs font-semibold text-inkSoft hover:bg-berry/10";
-        b.textContent = `${num} ข้อ`;
-        b.addEventListener("click", () => {
-          state.exerciseItemCount = num;
-          state.isEditMode = false;
-          renderExercises();
-          updatePreview();
-        });
-        countWrap.appendChild(b);
-      });
-    }
-
-    function renderActivities() {
-      const grid = document.getElementById("activityGrid");
-      grid.innerHTML = "";
-      const isNoneSelected = state.activities.length === 0;
-
-      ACTIVITIES.forEach(act => {
-        const isActive = act.id === "none" ? isNoneSelected : state.activities.includes(act.id);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "flex items-start gap-3 rounded-2xl border-2 border-leaf bg-leaf/15 p-3 text-left shadow-sm transition"
-          : "flex items-start gap-3 rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/40 p-3 text-left transition hover:border-leaf/60 hover:bg-white";
-        btn.innerHTML = `
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-lg shadow-sm">${act.icon}</span>
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center justify-between gap-2">
-              <span class="block text-sm font-bold text-ink">${act.name}</span>
-              <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${isActive ? "bg-leaf text-white" : "border border-[#D5C9BA] bg-white text-transparent"}">✓</span>
-            </div>
-            <p class="mt-0.5 text-xs text-inkSoft">${act.desc}</p>
-          </div>
-        `;
-        btn.addEventListener("click", () => {
-          if (act.id === "none") {
-            state.activities = [];
-          } else if (state.activities.includes(act.id)) {
-            state.activities = state.activities.filter(id => id !== act.id);
-          } else {
-            state.activities.push(act.id);
-          }
-          state.isEditMode = false;
-          renderActivities();
-          updatePreview();
-        });
-        grid.appendChild(btn);
-      });
-
-      const countBadge = document.getElementById("activityCountBadge");
-      if (countBadge) {
-        countBadge.textContent = state.activities.length > 0
-          ? `เลือกแล้ว ${state.activities.length} กิจกรรม`
-          : "ไม่ใส่เกมเสริม";
-      }
-    }
-
-    function renderPostTestControls() {
-      // รูปแบบข้อสอบ
-      const typeWrap = document.getElementById("postTestTypeBtns");
-      typeWrap.innerHTML = "";
-      POST_TEST_TYPES.forEach(t => {
-        const isActive = state.postTestType === t.id;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "rounded-2xl border-2 border-mango bg-mango/15 p-2.5 text-left shadow-sm transition"
-          : "rounded-2xl border border-[#E7DCCD] bg-surfaceAlt/50 p-2.5 text-left transition hover:bg-white";
-        btn.innerHTML = `<div class="text-xs font-bold text-ink">${t.label}</div><div class="mt-0.5 text-[11px] text-inkSoft">${t.desc}</div>`;
-        btn.addEventListener("click", () => {
-          state.postTestType = t.id;
-          state.isEditMode = false;
-          renderPostTestControls();
-          updatePreview();
-        });
-        typeWrap.appendChild(btn);
-      });
-
-      // ซ่อนตัวเลือกจำนวนตัวเลือกเมื่อเป็น ถูก-ผิด
-      document.getElementById("choiceCountWrap").classList.toggle("opacity-40", state.postTestType === "tf");
-      document.getElementById("choiceCountWrap").classList.toggle("pointer-events-none", state.postTestType === "tf");
-
-      // ปุ่มจำนวนตัวเลือก
-      const choiceWrap = document.getElementById("choiceCountBtns");
-      choiceWrap.innerHTML = "";
-      [2, 3, 4, 5].forEach(c => {
-        const isActive = state.choiceCount === c;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "rounded-xl bg-mango px-3 py-1.5 text-xs font-bold text-ink shadow-sm"
-          : "rounded-xl border border-[#E7DCCD] bg-surfaceAlt px-3 py-1.5 text-xs font-semibold text-inkSoft hover:bg-white";
-        btn.textContent = `${c} ตัวเลือก`;
-        btn.addEventListener("click", () => {
-          state.choiceCount = c;
-          state.isEditMode = false;
-          renderPostTestControls();
-          updatePreview();
-        });
-        choiceWrap.appendChild(btn);
-      });
-
-      // ปุ่มจำนวนข้อด่วน
-      const qWrap = document.getElementById("questionCountBtns");
-      qWrap.innerHTML = "";
-      [5, 10, 15, 20].forEach(q => {
-        const isActive = Number(state.questionCount) === q;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = isActive
-          ? "rounded-xl bg-grape px-3 py-1.5 text-xs font-bold text-white shadow-sm"
-          : "rounded-xl border border-[#E7DCCD] bg-surfaceAlt px-3 py-1.5 text-xs font-semibold text-inkSoft hover:bg-white";
-        btn.textContent = `${q}`;
-        btn.addEventListener("click", () => {
-          state.questionCount = q;
-          document.getElementById("customQuestionCount").value = q;
-          state.isEditMode = false;
-          renderPostTestControls();
-          updatePreview();
-        });
-        qWrap.appendChild(btn);
-      });
-    }
-
-    // แบนเนอร์ SVG แบบไดนามิกบนการ์ดพรอมพ์
-    function renderDynamicBanner() {
-      const subjMeta = getSubjectMeta();
-      const knowledgeObj = KNOWLEDGE_FORMATS.find(k => k.id === state.knowledgeFormat) || KNOWLEDGE_FORMATS[0];
-      const selectedActivities = ACTIVITIES.filter(a => a.id !== "none" && state.activities.includes(a.id));
-      const activityBannerIcon = selectedActivities.length > 0 ? selectedActivities[0].icon : "➖";
-      const banner = document.getElementById("dynamicCoverBanner");
-      const safeTopic = escapeHtml((state.topic.trim() || "สื่อการสอนอินเทอร์แอกทีฟ").slice(0, 26));
-
-      banner.innerHTML = `
-        <svg viewBox="0 0 600 200" class="h-full w-full" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <defs>
-            <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="${subjMeta.bg}" />
-              <stop offset="55%" stop-color="#FFF0D8" />
-              <stop offset="100%" stop-color="#ECE3FF" />
-            </linearGradient>
-          </defs>
-          <rect width="600" height="200" fill="url(#coverGrad)" />
-          <!-- วงกลม 3D Soft Clay ตกแต่งคล้ายภาพต้นแบบ -->
-          <circle cx="95" cy="95" r="56" fill="none" stroke="${subjMeta.color}" stroke-width="14" opacity="0.18" />
-          <circle cx="240" cy="70" r="42" fill="none" stroke="#FF9F1C" stroke-width="12" opacity="0.24" />
-          <circle cx="495" cy="105" r="64" fill="none" stroke="#7B5CFA" stroke-width="16" opacity="0.20" />
-          <circle cx="380" cy="160" r="32" fill="#FFFFFF" opacity="0.55" />
-
-          <!-- การ์ดจำลองเว็บแอปสื่อการสอนตรงกลาง -->
-          <g transform="translate(185, 28)">
-            <rect x="0" y="6" width="230" height="142" rx="22" fill="#2B2440" opacity="0.08" />
-            <rect x="0" y="0" width="230" height="142" rx="22" fill="#FFFFFF" />
-            <rect x="0" y="0" width="230" height="32" rx="22" fill="${subjMeta.color}" opacity="0.16" />
-            <circle cx="20" cy="16" r="5" fill="#FF6B6B" />
-            <circle cx="36" cy="16" r="5" fill="#FFD166" />
-            <circle cx="52" cy="16" r="5" fill="#2EB872" />
-            <text x="115" y="68" text-anchor="middle" font-size="30">${subjMeta.icon} ${knowledgeObj.icon}</text>
-            <text x="115" y="96" text-anchor="middle" fill="#2B2440" font-family="Mali, sans-serif" font-weight="700" font-size="14">${safeTopic}</text>
-            <!-- แถบปุ่มจำลอง 3 โมดูล -->
-            <rect x="16" y="108" width="58" height="22" rx="8" fill="#FAF3E8" />
-            <rect x="86" y="108" width="58" height="22" rx="8" fill="#FAF3E8" />
-            <rect x="156" y="108" width="58" height="22" rx="8" fill="#FAF3E8" />
-            <text x="45" y="124" text-anchor="middle" font-size="14">✍️</text>
-            <text x="115" y="124" text-anchor="middle" font-size="14">${activityBannerIcon}</text>
-            <text x="185" y="124" text-anchor="middle" font-size="14">📝</text>
-          </g>
-        </svg>
-      `;
-    }
-
-    function updatePreview() {
-      const subjectName = getActiveSubject();
-      const topicName = state.topic.trim() || "บทเรียนใหม่";
-      const knowledgeObj = KNOWLEDGE_FORMATS.find(k => k.id === state.knowledgeFormat) || KNOWLEDGE_FORMATS[0];
-      const selectedActivities = ACTIVITIES.filter(a => a.id !== "none" && state.activities.includes(a.id));
-
-      // อัปเดตหัวข้อ
-      document.getElementById("previewTitle").textContent = `สื่อการสอน: ${topicName}`;
-
-      // อัปเดตชิปสรุป (สไตล์ต้นแบบ)
-      const chipsWrap = document.getElementById("previewChips");
-      const chips = [
-        { text: `🏷️ ${knowledgeObj.short}`, bg: "bg-surfaceAlt text-inkSoft" },
-        { text: `${subjectName}`, bg: "bg-tealSoft/15 text-[#0E7A6F]" },
-        { text: `${state.grade}`, bg: "bg-mango/25 text-ink" },
-      ];
-      selectedActivities.forEach(actObj => {
-        chips.push({ text: `${actObj.icon} ${actObj.short}`, bg: "bg-grape/15 text-grapeEdge" });
-      });
-      if (state.postTestEnabled) {
-        chips.push({ text: `📝 สอบ ${state.questionCount} ข้อ`, bg: "bg-berry/15 text-berry" });
-      }
-
-      chipsWrap.innerHTML = chips.map(c =>
-        `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${c.bg}">${escapeHtml(c.text)}</span>`
-      ).join("");
-
-      // อัปเดตเนื้อหาพรอมพ์
-      const generatedPrompt = state.isEditMode ? state.customPromptText : buildPromptText();
-      if (!state.isEditMode) {
-        state.customPromptText = generatedPrompt;
-      }
-
-      document.getElementById("promptOutputPre").textContent = generatedPrompt;
-      document.getElementById("promptEditTextarea").value = generatedPrompt;
-      document.getElementById("promptCharCount").textContent = `${generatedPrompt.length.toLocaleString()} ตัวอักษร`;
-
-      // แสดงผลกล่องอ่าน vs กล่องแก้ไข
-      document.getElementById("promptReadBox").classList.toggle("hidden", state.isEditMode);
-      document.getElementById("promptEditTextarea").classList.toggle("hidden", !state.isEditMode);
-      document.getElementById("btnToggleEdit").textContent = state.isEditMode ? "✅ เสร็จสิ้น" : "✏️ แก้ไขเอง";
-
-      renderDynamicBanner();
-    }
-
-    function renderAll() {
-      renderSubjects();
-      renderGrades();
-      renderKnowledgeFormats();
-      renderExercises();
-      renderActivities();
-      renderPostTestControls();
-      updatePreview();
-    }
-
-    // ------------------------- 6. ระบบอ่านไฟล์ที่อัปโหลด -------------------------
-
-    function readFileAsText(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ""));
-        reader.onerror = () => reject(new Error("ไม่สามารถอ่านไฟล์ข้อความได้"));
-        reader.readAsText(file, "UTF-8");
-      });
-    }
-
-    function readFileAsBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = String(reader.result || "");
-          const commaIdx = result.indexOf(",");
-          resolve(commaIdx >= 0 ? result.slice(commaIdx + 1) : result);
-        };
-        reader.onerror = () => reject(new Error("ไม่สามารถแปลงไฟล์ได้"));
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function readFileAsArrayBuffer(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error("ไม่สามารถอ่านข้อมูลไฟล์ Word ได้"));
-        reader.readAsArrayBuffer(file);
-      });
-    }
-
-    async function handleFileSelected(file) {
-      if (!file) return;
-      showErrorBox("");
-
-      if (file.size > 10 * 1024 * 1024) {
-        showErrorBox("ไฟล์มีขนาดใหญ่เกิน 10 MB กรุณาเลือกไฟล์ที่เล็กลงหรือคัดลอกข้อความมาวางแทนครับ");
-        return;
-      }
-
-      const nameLower = file.name.toLowerCase();
-      let icon = "📄";
-      let fileRecord = {
-        name: file.name,
-        size: file.size,
-        mimeType: file.type || "application/octet-stream",
-        kind: "text",
-        textContent: "",
-        base64Data: ""
-      };
-
-      try {
-        if (nameLower.endsWith(".txt") || nameLower.endsWith(".md") || nameLower.endsWith(".csv") || nameLower.endsWith(".json")) {
-          icon = "📝";
-          fileRecord.kind = "text";
-          fileRecord.textContent = await readFileAsText(file);
-        } else if (nameLower.endsWith(".docx")) {
-          icon = "📘";
-          if (typeof window.mammoth !== "undefined") {
-            const arrayBuffer = await readFileAsArrayBuffer(file);
-            const result = await window.mammoth.extractRawText({ arrayBuffer });
-            fileRecord.kind = "text";
-            fileRecord.textContent = result.value || "";
-          } else {
-            throw new Error("ตัวอ่านไฟล์ .docx ยังโหลดไม่เสร็จ กรุณาลองใหม่หรือคัดลอกข้อความจาก Word มาวางในแท็บ 'วางข้อความเนื้อหา'");
-          }
-        } else if (nameLower.endsWith(".pdf") || file.type === "application/pdf") {
-          icon = "📕";
-          fileRecord.kind = "inline";
-          fileRecord.mimeType = "application/pdf";
-          fileRecord.base64Data = await readFileAsBase64(file);
-        } else if (file.type.startsWith("image/")) {
-          icon = "🖼️";
-          fileRecord.kind = "inline";
-          fileRecord.base64Data = await readFileAsBase64(file);
-        } else {
-          throw new Error("รองรับเฉพาะไฟล์ .pdf, .docx, .txt, .md, .csv และรูปภาพ (.png, .jpg, .webp) ครับ");
-        }
-
-        state.uploadedFile = fileRecord;
-        state.analysisResult = null;
-        document.getElementById("aiAnalysisResult").classList.add("hidden");
-
-        document.getElementById("uploadedFileIcon").textContent = icon;
-        document.getElementById("uploadedFileName").textContent = file.name;
-        document.getElementById("uploadedFileMeta").textContent = `${formatFileSize(file.size)} • พร้อมให้ระบบวิเคราะห์`;
-        const badge = document.getElementById("uploadedFileBadge");
-        badge.classList.remove("hidden");
-        badge.classList.add("flex");
-
-        updatePreview();
-        showToast("อัปโหลดไฟล์สำเร็จ กดปุ่มวิเคราะห์เนื้อหาได้เลยครับ 📄");
-      } catch (err) {
-        showErrorBox(err.message || "เกิดข้อผิดพลาดในการอ่านไฟล์");
-      }
-    }
-
-    // ------------------------- 7. ระบบวิเคราะห์เนื้อหาด้วย Gemini API + Local Fallback -------------------------
-
-    async function callGeminiWithRetry(payload, maxRetries = 3, overrideKey = null, overrideModel = null) {
-      const activeKey = (overrideKey !== null ? overrideKey : getStoredApiKey()).trim();
-      const activeModel = overrideModel || getStoredModel();
-
-      if (!activeKey) {
-        throw new Error("NO_API_KEY");
-      }
-
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(activeModel)}:generateContent`;
-      let lastError = null;
-
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": activeKey
-            },
-            body: JSON.stringify(payload)
-          });
-
-          if (!response.ok) {
-            const errText = await response.text().catch(() => "");
-            if (response.status === 400 || response.status === 401 || response.status === 403) {
-              throw new Error("API_KEY_INVALID:" + response.status);
-            }
-            throw new Error(`HTTP ${response.status}: ${errText.slice(0, 120)}`);
-          }
-          return await response.json();
-        } catch (err) {
-          lastError = err;
-          if (String(err.message || "").startsWith("API_KEY_INVALID:") || err.message === "NO_API_KEY") {
-            throw err;
-          }
-          if (attempt < maxRetries - 1) {
-            await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 800));
-          }
-        }
-      }
-      throw lastError || new Error("ไม่สามารถเชื่อมต่อ AI ได้");
-    }
-
-    // เปิด-ปิด และจัดการหน้าต่าง Modal ตั้งค่า Gemini API Key
-    function showApiModalFeedback(message, type = "info") {
-      const box = document.getElementById("apiModalFeedback");
-      if (!message) {
-        box.classList.add("hidden");
-        box.textContent = "";
-        return;
-      }
-      const styleMap = {
-        success: "border border-leaf/30 bg-leaf/15 text-[#176E41]",
-        error: "border border-rose-200 bg-rose-50 text-rose-700",
-        info: "border border-grape/30 bg-grape/10 text-grapeEdge"
-      };
-      box.className = `rounded-2xl px-3.5 py-2.5 text-xs font-semibold ${styleMap[type] || styleMap.info}`;
-      box.textContent = message;
-      box.classList.remove("hidden");
-    }
-
-    function openApiModal() {
-      const modal = document.getElementById("apiKeyModal");
-      const input = document.getElementById("apiKeyInput");
-      const modelSelect = document.getElementById("geminiModelSelect");
-
-      input.value = getStoredApiKey();
-      input.type = "password";
-      document.getElementById("btnToggleApiKeyVis").textContent = "👁️ แสดง";
-      modelSelect.value = getStoredModel();
-      showApiModalFeedback("");
-
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-      setTimeout(() => input.focus(), 60);
-    }
-
-    function closeApiModal() {
-      const modal = document.getElementById("apiKeyModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
-
-    function saveApiKeySettings() {
-      const keyVal = document.getElementById("apiKeyInput").value.trim();
-      const modelVal = document.getElementById("geminiModelSelect").value || DEFAULT_GEMINI_MODEL;
-
-      try {
-        if (keyVal) {
-          localStorage.setItem(API_KEY_STORAGE_KEY, keyVal);
-        } else {
-          localStorage.removeItem(API_KEY_STORAGE_KEY);
-        }
-        localStorage.setItem(MODEL_STORAGE_KEY, modelVal);
-      } catch (err) {
-        showApiModalFeedback("ไม่สามารถบันทึกในเบราว์เซอร์นี้ได้ (อาจเปิดโหมดไม่ระบุตัวตนที่ปิดพื้นที่จัดเก็บ)", "error");
-        return;
-      }
-
-      updateApiStatusUI();
-      closeApiModal();
-      showToast(keyVal ? "บันทึก Gemini API Key เรียบร้อยแล้ว 🔑✨" : "ลบ API Key ออกจากเบราว์เซอร์แล้ว");
-    }
-
-    function clearApiKeySettings() {
-      document.getElementById("apiKeyInput").value = "";
-      try {
-        localStorage.removeItem(API_KEY_STORAGE_KEY);
-      } catch (err) {
-        // ข้ามหากไม่สามารถเข้าถึง localStorage
-      }
-      updateApiStatusUI();
-      showApiModalFeedback("ล้าง API Key เรียบร้อยแล้ว (ระบบจะใช้โหมดวิเคราะห์ออฟไลน์แทน)", "info");
-    }
-
-    async function testApiKeyConnection() {
-      const keyVal = document.getElementById("apiKeyInput").value.trim();
-      const modelVal = document.getElementById("geminiModelSelect").value || DEFAULT_GEMINI_MODEL;
-
-      if (!keyVal) {
-        showApiModalFeedback("กรุณาวาง Gemini API Key ก่อนกดทดสอบครับ", "error");
-        return;
-      }
-
-      const btn = document.getElementById("btnTestApiKey");
-      const spinner = document.getElementById("testApiSpinner");
-      btn.disabled = true;
-      spinner.classList.remove("hidden");
-      showApiModalFeedback("กำลังทดสอบการเชื่อมต่อกับ Google Gemini API...", "info");
-
-      try {
-        const res = await callGeminiWithRetry({
-          contents: [{ parts: [{ text: "ตอบสั้นๆ ว่า OK" }] }],
-          generationConfig: { maxOutputTokens: 16 }
-        }, 1, keyVal, modelVal);
-
-        const reply = res?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply) {
-          showApiModalFeedback(`✅ เชื่อมต่อสำเร็จ! API Key ใช้งานได้กับโมเดล ${modelVal} กด "บันทึกการตั้งค่า" ได้เลยครับ`, "success");
-        } else {
-          showApiModalFeedback("⚠️ เชื่อมต่อได้แต่ไม่ได้รับข้อความตอบกลับ กรุณาลองใหม่อีกครั้ง", "error");
-        }
-      } catch (err) {
-        const msg = String(err.message || "");
-        if (msg.startsWith("API_KEY_INVALID:")) {
-          showApiModalFeedback("❌ API Key ไม่ถูกต้องหรือไม่มีสิทธิ์เข้าถึงโมเดลนี้ กรุณาตรวจสอบคีย์จาก Google AI Studio อีกครั้ง", "error");
-        } else {
-          showApiModalFeedback("❌ เชื่อมต่อไม่สำเร็จ: " + msg, "error");
-        }
-      } finally {
-        btn.disabled = false;
-        spinner.classList.add("hidden");
-      }
-    }
-
-    // ระบบวิเคราะห์สำรองฝั่งเบราว์เซอร์ (ทำงานเมื่อไม่มี API Key หรือออฟไลน์)
-    function runLocalHeuristicAnalysis(rawText, fileName = "") {
-      const combined = (fileName + " " + rawText).toLowerCase();
-      let detectedSubject = "ภาษาไทย";
-
-      if (/คณิต|เศษส่วน|สมการ|ทศนิยม|เรขาคณิต|คูณ|หาร|ร้อยละ|พีทาโกรัส|สถิติ|math|fraction/.test(combined)) {
-        detectedSubject = "คณิตศาสตร์";
-      } else if (/เซลล์|แรง|พลังงาน|ระบบสุริยะ|พืช|สัตว์|เคมี|ฟิสิกส์|ชีวะ|วิทยาศาสตร์|สสาร|ไฟฟ้า|science/.test(combined)) {
-        detectedSubject = "วิทยาศาสตร์และเทคโนโลยี";
-      } else if (/english|tense|verb|noun|vocabulary|grammar|present|past|daily|ภาษาอังกฤษ/.test(combined)) {
-        detectedSubject = "ภาษาอังกฤษ";
-      } else if (/อัลกอริทึม|โค้ด|โปรแกรม|python|html|scratch|คอมพิวเตอร์|ข้อมูล|ดิจิทัล/.test(combined)) {
-        detectedSubject = "วิทยาการคำนวณ";
-      } else if (/ประวัติศาสตร์|ภูมิศาสตร์|ศาสนา|พลเมือง|เศรษฐศาสตร์|อาเซียน|กฎหมาย|สังคม/.test(combined)) {
-        detectedSubject = "สังคมศึกษา ศาสนา และวัฒนธรรม";
-      } else if (/สุขภาพ|อาหาร|ออกกำลังกาย|ร่างกาย|เพศศึกษา|ปฐมพยาบาล|พลศึกษา/.test(combined)) {
-        detectedSubject = "สุขศึกษาและพลศึกษา";
-      } else if (/ดนตรี|ศิลปะ|สี|โน้ต|นาฏศิลป์|วาดภาพ|ทัศนศิลป์/.test(combined)) {
-        detectedSubject = "ศิลปะและดนตรี";
-      }
-
-      // ตรวจหาระดับชั้นจากข้อความ
-      const gradeMatch = (fileName + " " + rawText).match(/(อ\.[1-3]|ป\.[1-6]|ม\.[1-6])/);
-      const detectedGrade = gradeMatch ? gradeMatch[1] : state.grade;
-
-      // ดึงบรรทัดแรกหรือชื่อไฟล์เป็นหัวข้อ
-      const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(s => s.length >= 3);
-      const cleanFileTopic = fileName ? fileName.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ") : "";
-      const detectedTopic = (lines[0] && lines[0].length <= 60 ? lines[0] : (cleanFileTopic || state.topic)).slice(0, 60);
-
-      // ดึงประเด็นสำคัญ
-      const keyConcepts = lines.slice(0, 4).map(l => l.slice(0, 70));
-      const summary = lines.length > 0
-        ? lines.slice(0, 3).join(" ").slice(0, 220)
-        : `เอกสารเรื่อง ${detectedTopic} สำหรับนำไปออกแบบสื่อการสอนแบบโต้ตอบ`;
-
-      // แนะนำรูปแบบที่เหมาะกับระดับชั้นและวิชา
-      const isSecondary = detectedGrade.startsWith("ม.") || detectedGrade === "อาชีวศึกษา" || detectedGrade === "อุดมศึกษา";
-      const recommendedKnowledgeFormat = detectedSubject === "ภาษาอังกฤษ"
-        ? "flashcards"
-        : isSecondary ? "website" : "infographic";
-      const recommendedExercises = detectedSubject === "คณิตศาสตร์"
-        ? ["fill_blank", "short_answer"]
-        : ["matching", "true_false", "relationship"];
-      const recommendedActivities = isSecondary
-        ? ["jigsaw", "wheel"]
-        : ["bingo", "snakes_ladders"];
-
-      return {
-        detectedSubject,
-        customSubjectName: "",
-        detectedGrade,
-        detectedTopic,
-        summary,
-        keyConcepts: keyConcepts.length > 0 ? keyConcepts : [detectedTopic],
-        recommendedKnowledgeFormat,
-        knowledgeReason: "เหมาะกับโครงสร้างเนื้อหาและช่วงวัยผู้เรียน",
-        recommendedExercises,
-        exerciseReason: "ช่วยวัดความเข้าใจและฝึกเชื่อมโยงหลักการได้ดี",
-        recommendedActivities,
-        activityReason: "เพิ่มความสนุกและการมีส่วนร่วมระหว่างเรียน",
-        recommendedPostTestCount: isSecondary ? 15 : 10,
-        sampleContentForPrompt: rawText.trim().slice(0, 400),
-        _isLocalFallback: true
-      };
-    }
-
-    async function analyzeContentWithAI() {
-      showErrorBox("");
-      const hasFile = state.inputMode === "file" && state.uploadedFile;
-      const hasPasted = state.inputMode === "paste" && state.pastedText.trim().length > 0;
-
-      if (!hasFile && !hasPasted) {
-        showErrorBox("กรุณาอัปโหลดไฟล์เนื้อหา หรือวางข้อความบทเรียนก่อนกดวิเคราะห์ครับ");
-        return;
-      }
-
-      const btn = document.getElementById("btnAnalyzeContent");
-      const spinner = document.getElementById("analyzeSpinner");
-      const label = document.getElementById("analyzeBtnLabel");
-      btn.disabled = true;
-      spinner.classList.remove("hidden");
-      label.textContent = "กำลังวิเคราะห์เนื้อหา...";
-
-      try {
-        const parts = [];
-        parts.push({
-          text: `คุณคือผู้เชี่ยวชาญด้านเทคโนโลยีการศึกษาและการออกแบบสื่อการสอน (Instructional Designer)
-ช่วยวิเคราะห์เอกสาร/เนื้อหาบทเรียนที่แนบมา แล้วส่งคืนข้อมูลเป็น JSON ตาม Schema ที่กำหนดอย่างเคร่งครัด
-
-กฎการเลือกค่าแนะนำ:
-- detectedSubject: เลือกหนึ่งค่าจาก ["ภาษาไทย", "คณิตศาสตร์", "วิทยาศาสตร์และเทคโนโลยี", "สังคมศึกษา ศาสนา และวัฒนธรรม", "ภาษาอังกฤษ", "วิทยาการคำนวณ", "สุขศึกษาและพลศึกษา", "ศิลปะและดนตรี", "custom"]
-- detectedGrade: เลือกหนึ่งค่าจาก ["อ.1","อ.2","อ.3","ป.1","ป.2","ป.3","ป.4","ป.5","ป.6","ม.1","ม.2","ม.3","ม.4","ม.5","ม.6","อาชีวศึกษา","อุดมศึกษา","บุคคลทั่วไป"]
-- recommendedKnowledgeFormat: เลือกหนึ่งค่าจาก ["slide", "infographic", "website", "flashcards"]
-- recommendedExercises: อาร์เรย์ 2-3 ค่าจาก ["short_answer", "relationship", "true_false", "fill_blank", "matching"]
-- recommendedActivities: อาร์เรย์ 1-2 ค่าจาก ["bingo", "jigsaw", "snakes_ladders", "memory", "wheel"]
-- recommendedPostTestCount: จำนวนข้อแบบทดสอบหลังเรียนที่เหมาะสม (5, 10, 15 หรือ 20)`
-        });
-
-        if (hasPasted) {
-          parts.push({ text: "เนื้อหาบทเรียนจากผู้สอน:\n" + state.pastedText.trim().slice(0, 12000) });
-        } else if (state.uploadedFile.kind === "text") {
-          parts.push({
-            text: `ชื่อไฟล์: ${state.uploadedFile.name}\nเนื้อหา:\n${(state.uploadedFile.textContent || "").slice(0, 12000)}`
-          });
-        } else if (state.uploadedFile.kind === "inline") {
-          parts.push({
-            inlineData: {
-              mimeType: state.uploadedFile.mimeType,
-              data: state.uploadedFile.base64Data
-            }
-          });
-        }
-
-        const payload = {
-          contents: [{ parts }],
-          generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "OBJECT",
-              properties: {
-                detectedSubject: { type: "STRING" },
-                customSubjectName: { type: "STRING" },
-                detectedGrade: { type: "STRING" },
-                detectedTopic: { type: "STRING" },
-                summary: { type: "STRING" },
-                keyConcepts: { type: "ARRAY", items: { type: "STRING" } },
-                recommendedKnowledgeFormat: { type: "STRING" },
-                knowledgeReason: { type: "STRING" },
-                recommendedExercises: { type: "ARRAY", items: { type: "STRING" } },
-                exerciseReason: { type: "STRING" },
-                recommendedActivities: { type: "ARRAY", items: { type: "STRING" } },
-                activityReason: { type: "STRING" },
-                recommendedPostTestCount: { type: "INTEGER" },
-                sampleContentForPrompt: { type: "STRING" }
-              },
-              required: [
-                "detectedSubject", "detectedGrade", "detectedTopic", "summary",
-                "keyConcepts", "recommendedKnowledgeFormat", "recommendedExercises",
-                "recommendedActivities", "recommendedPostTestCount"
-              ]
-            }
-          }
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- APP STATE & CONSTANTS ---
+        const SUBJECTS = [
+            { id: 'soc', name: 'สังคมศึกษา', icon: 'fa-earth-asia', color: 'from-amber-500 to-orange-500' },
+            { id: 'his', name: 'ประวัติศาสตร์', icon: 'fa-landmark', color: 'from-amber-700 to-yellow-800' },
+            { id: 'cs', name: 'วิทยาการคำนวณ/Coding', icon: 'fa-laptop-code', color: 'from-cyan-500 to-blue-600' },
+            { id: 'th', name: 'ภาษาไทย', icon: 'fa-book-open', color: 'from-red-500 to-rose-600' },
+            { id: 'math', name: 'คณิตศาสตร์', icon: 'fa-calculator', color: 'from-blue-600 to-indigo-700' },
+            { id: 'sci', name: 'วิทยาศาสตร์', icon: 'fa-flask', color: 'from-emerald-500 to-teal-600' },
+            { id: 'eng', name: 'ภาษาอังกฤษ', icon: 'fa-language', color: 'from-purple-500 to-violet-600' },
+            { id: 'art', name: 'สุขศึกษา/ศิลปะ/การงาน', icon: 'fa-palette', color: 'from-pink-500 to-rose-400' },
+            { id: 'custom', name: 'ระบุวิชาเอง', icon: 'fa-pen', color: 'from-gray-600 to-gray-800' }
+        ];
+
+        const GRADES = ['อ.1–อ.3', 'ป.1–ป.3', 'ป.4–ป.6', 'ม.1–ม.3', 'ม.4–ม.6', 'ปวช./ปวส./อุดมศึกษา'];
+
+        const CONTENT_FORMATS = [
+            { id: 'slide', label: 'สไลด์นำเสนอ', desc: 'Slide Deck เลื่อนหน้า', icon: 'fa-file-powerpoint' },
+            { id: 'infographic', label: 'อินโฟกราฟิก', desc: 'Infographic สรุปภาพรวม', icon: 'fa-chart-pie' },
+            { id: 'web', label: 'นำเสนอเว็บไซต์', desc: 'Interactive Web Page', icon: 'fa-globe' },
+            { id: 'flashcard', label: 'แฟลชการ์ด 3D', desc: '3D Flip Cards ทบทวน', icon: 'fa-clone' }
+        ];
+
+        const THEMES = [
+            { id: 'amber', name: 'ส้มอบอุ่น', bg: 'bg-amber-500' },
+            { id: 'blue', name: 'ฟ้าสดใส', bg: 'bg-blue-500' },
+            { id: 'emerald', name: 'เขียวธรรมชาติ', bg: 'bg-emerald-500' },
+            { id: 'purple', name: 'ม่วงพาสเทล', bg: 'bg-purple-500' },
+            { id: 'rose', name: 'ชมพูหวาน', bg: 'bg-rose-500' },
+            { id: 'slate', name: 'เข้มขรึม', bg: 'bg-slate-700' }
+        ];
+
+        const EXERCISE_TYPES = [
+            { id: 'short', label: 'ตอบคำถามสั้น' },
+            { id: 'relation', label: 'วิเคราะห์ความสัมพันธ์' },
+            { id: 'tf', label: 'ถูก-ผิด (True/False)' },
+            { id: 'blank', label: 'เติมคำในช่องว่าง' },
+            { id: 'match', label: 'โยงเส้นจับคู่' }
+        ];
+
+        const GAMES = [
+            { id: 'bingo', name: 'บิงโก', desc: 'Bingo คำศัพท์/มโนทัศน์', icon: 'fa-table-cells' },
+            { id: 'jigsaw', name: 'ต่อจิ๊กซอว์', desc: 'Jigsaw ปริศนาภาพ', icon: 'fa-puzzle-piece' },
+            { id: 'snakes', name: 'บันไดงู', desc: 'Snakes & Ladders ตอบคำถาม', icon: 'fa-chess-board' },
+            { id: 'memory', name: 'เปิดป้ายจับคู่', desc: 'Memory Card Match', icon: 'fa-layer-group', isMemory: true },
+            { id: 'wheel', name: 'วงล้อสุ่มคำถาม', desc: 'Spinning Wheel คำถาม', icon: 'fa-arrows-spin' }
+        ];
+
+        // State variables
+        let selectedSubject = 'soc';
+        let customSubjectText = '';
+        let selectedGrade = 'ป.4–ป.6';
+        let selectedTheme = 'amber';
+        let selectedContentFormat = 'web';
+        let selectedExercises = ['short', 'blank', 'match'];
+        let selectedGames = ['memory'];
+        let selectedPeekTime = 5;
+        let uploadedFileText = '';
+
+        // --- INITIALIZATION ---
+        window.onload = function() {
+            renderSubjectChips();
+            renderGradeChips();
+            renderThemeChoices();
+            renderContentFormats();
+            renderExerciseTypes();
+            renderGames();
+            checkApiKeyStatus();
+            updateBannerPreview();
+            updatePrompt();
         };
 
-        let parsed;
-        let usedReason = "";
-        try {
-          const result = await callGeminiWithRetry(payload);
-          const textOut = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!textOut) throw new Error("API_UNAVAILABLE:empty");
-          parsed = JSON.parse(textOut);
-        } catch (apiErr) {
-          usedReason = String(apiErr.message || "");
-          // หากยังไม่ได้ใส่ API Key หรือคีย์มีปัญหา ให้ใช้ตัววิเคราะห์อัจฉริยะฝั่งเบราว์เซอร์แทนโดยไม่พัง
-          const fallbackText = hasPasted ? state.pastedText : (state.uploadedFile?.textContent || "");
-          const fallbackName = hasFile ? state.uploadedFile.name : "";
-          parsed = runLocalHeuristicAnalysis(fallbackText, fallbackName);
+        // --- UI RENDERERS ---
+        function renderSubjectChips() {
+            const container = document.getElementById('subject-chips');
+            container.innerHTML = SUBJECTS.map(s => `
+                <button type="button" onclick="selectSubject('${s.id}')" 
+                    class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition border ${
+                        selectedSubject === s.id 
+                        ? 'bg-amber-500 text-white border-amber-600 shadow-sm' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-amber-300'
+                    }">
+                    <i class="fa-solid ${s.icon}"></i>
+                    <span>${s.name}</span>
+                </button>
+            `).join('');
         }
 
-        state.analysisResult = parsed;
-        renderAnalysisResult(parsed);
-        updatePreview();
-
-        if (parsed._isLocalFallback) {
-          if (hasFile && state.uploadedFile.kind === "inline" && usedReason === "NO_API_KEY") {
-            showErrorBox("หากต้องการให้ AI อ่านเนื้อหาในไฟล์ PDF หรือรูปภาพโดยตรง กรุณากดปุ่ม '⚙️ ตั้งค่า API Key' ด้านบนขวาแล้วใส่คีย์ฟรีจาก Google AI Studio ครับ");
-          } else if (usedReason.startsWith("API_KEY_INVALID:")) {
-            showErrorBox("Gemini API Key ที่บันทึกไว้ไม่ถูกต้องหรือหมดอายุ กรุณาตรวจสอบในปุ่ม '⚙️ ตั้งค่า API Key' (ตอนนี้ระบบวิเคราะห์แบบออฟไลน์ให้แทนแล้ว)");
-          }
-          showToast("วิเคราะห์เนื้อหาอัตโนมัติสำเร็จ (โหมดวิเคราะห์ออฟไลน์) ✨");
-        } else {
-          showToast("AI วิเคราะห์เนื้อหาและแนะนำพรอมพ์สำเร็จแล้ว! 🤖✨");
+        function selectSubject(id) {
+            selectedSubject = id;
+            if (id === 'custom') {
+                const name = prompt('กรุณาระบุชื่อวิชา:', customSubjectText || 'วิทยาศาสตร์อวกาศ');
+                if (name) customSubjectText = name;
+            }
+            renderSubjectChips();
+            updatePrompt();
         }
-      } catch (err) {
-        showErrorBox(err.message || "เกิดข้อผิดพลาดในการวิเคราะห์เนื้อหา");
-      } finally {
-        btn.disabled = false;
-        spinner.classList.add("hidden");
-        label.textContent = "🔍 วิเคราะห์เนื้อหา & แนะนำการตั้งค่าอัตโนมัติ";
-      }
-    }
 
-    function renderAnalysisResult(parsed) {
-      const kName = KNOWLEDGE_FORMATS.find(k => k.id === parsed.recommendedKnowledgeFormat)?.name || parsed.recommendedKnowledgeFormat;
-      const exNames = (parsed.recommendedExercises || [])
-        .map(id => EXERCISES.find(e => e.id === id)?.name)
-        .filter(Boolean)
-        .join(", ");
-      const actNames = (parsed.recommendedActivities || [])
-        .map(id => ACTIVITIES.find(a => a.id === id)?.name)
-        .filter(Boolean)
-        .join(", ");
-      const subjDisplay = parsed.detectedSubject === "custom"
-        ? (parsed.customSubjectName || "วิชาทั่วไป")
-        : parsed.detectedSubject;
-
-      document.getElementById("aiAnalysisHeading").textContent = parsed._isLocalFallback
-        ? "ผลการวิเคราะห์เนื้อหาเบื้องต้น (โหมดออฟไลน์)"
-        : "ผลการวิเคราะห์เนื้อหาด้วย AI และคำแนะนำที่เหมาะสม";
-
-      document.getElementById("aiAnalysisDetails").innerHTML = `
-        <p><strong>📚 วิชา &amp; ระดับชั้นที่ตรวจพบ:</strong> ${escapeHtml(subjDisplay)} (${escapeHtml(parsed.detectedGrade)}) — เรื่อง <strong>${escapeHtml(parsed.detectedTopic)}</strong></p>
-        <p><strong>💡 สรุปสาระสำคัญ:</strong> ${escapeHtml(parsed.summary)}</p>
-        <p><strong>📖 ใบความรู้ที่แนะนำ:</strong> ${escapeHtml(kName)} ${parsed.knowledgeReason ? `(${escapeHtml(parsed.knowledgeReason)})` : ""}</p>
-        <p><strong>✍️ แบบฝึกหัดที่เหมาะสม:</strong> ${escapeHtml(exNames || "-")} ${parsed.exerciseReason ? `(${escapeHtml(parsed.exerciseReason)})` : ""}</p>
-        <p><strong>🎲 กิจกรรมที่แนะนำ:</strong> ${escapeHtml(actNames || "-")} ${parsed.activityReason ? `(${escapeHtml(parsed.activityReason)})` : ""} · <strong>แบบทดสอบ:</strong> ${escapeHtml(parsed.recommendedPostTestCount)} ข้อ</p>
-      `;
-
-      document.getElementById("aiAnalysisResult").classList.remove("hidden");
-    }
-
-    function applyAIRecommendations() {
-      const r = state.analysisResult;
-      if (!r) return;
-
-      if (SUBJECTS.some(s => s.id === r.detectedSubject)) {
-        state.subject = r.detectedSubject;
-        state.customSubject = r.detectedSubject === "custom" ? (r.customSubjectName || "") : "";
-      } else if (r.detectedSubject) {
-        state.subject = "custom";
-        state.customSubject = r.detectedSubject;
-      }
-
-      if (r.detectedTopic) state.topic = r.detectedTopic;
-
-      const allGrades = GRADE_GROUPS.flatMap(g => g.items);
-      if (allGrades.includes(r.detectedGrade)) {
-        state.grade = r.detectedGrade;
-      }
-
-      if (KNOWLEDGE_FORMATS.some(k => k.id === r.recommendedKnowledgeFormat)) {
-        state.knowledgeFormat = r.recommendedKnowledgeFormat;
-      }
-
-      if (Array.isArray(r.recommendedExercises)) {
-        const validEx = r.recommendedExercises.filter(id => EXERCISES.some(e => e.id === id));
-        if (validEx.length > 0) state.exercises = validEx;
-      }
-
-      if (Array.isArray(r.recommendedActivities)) {
-        const validActs = r.recommendedActivities.filter(id => id !== "none" && ACTIVITIES.some(a => a.id === id));
-        if (validActs.length > 0) state.activities = validActs;
-      }
-
-      if (r.recommendedPostTestCount && r.recommendedPostTestCount >= 1 && r.recommendedPostTestCount <= 50) {
-        state.postTestEnabled = true;
-        state.questionCount = r.recommendedPostTestCount;
-      }
-
-      state.isEditMode = false;
-      syncInputsFromState();
-      renderAll();
-      showToast("นำค่าแนะนำทั้งหมดไปตั้งค่าพรอมพ์เรียบร้อยแล้ว! ✨");
-    }
-
-    // ------------------------- 8. เกลาพรอมพ์ให้ละเอียดขึ้นด้วย AI -------------------------
-
-    async function enhancePromptWithAI() {
-      const btn = document.getElementById("btnEnhanceAI");
-      const spinner = document.getElementById("enhanceSpinner");
-      btn.disabled = true;
-      spinner.classList.remove("hidden");
-
-      const currentPrompt = state.isEditMode ? state.customPromptText : buildPromptText();
-
-      try {
-        const payload = {
-          contents: [{
-            parts: [{
-              text: `ช่วยปรับปรุงและเกลาพรอมพ์สร้างเว็บแอปพลิเคชันสื่อการสอนด้านล่างนี้ให้คมชัด ละเอียด และมีคลังตัวอย่างเนื้อหา/คำศัพท์/โจทย์เฉพาะเรื่อง "${state.topic || "บทเรียนนี้"}" ระดับชั้น ${state.grade} เพิ่มเติมลงไปอย่างครบถ้วน เพื่อให้นำไปวางใน Gemini แล้วได้เว็บแอปสื่อการสอนที่สวยงามและสมบูรณ์ที่สุด
-คงโครงสร้างหัวข้อพร้อมอีโมจิให้เป็นระเบียบ อ่านง่าย ตอบกลับเป็นตัวพรอมพ์ภาษาไทยที่พร้อมคัดลอกทันทีโดยไม่ต้องมีคำเกริ่นนำ:
-
-${currentPrompt}`
-            }]
-          }]
-        };
-
-        const result = await callGeminiWithRetry(payload, 2);
-        const enhanced = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        if (!enhanced) throw new Error("ไม่สามารถเชื่อมต่อ AI เพื่อเกลาพรอมพ์ได้ในขณะนี้");
-
-        state.customPromptText = enhanced;
-        state.isEditMode = true;
-        updatePreview();
-        // สลับกลับเป็นโหมดอ่านแต่คงข้อความที่เกลาแล้วไว้
-        document.getElementById("promptReadBox").classList.remove("hidden");
-        document.getElementById("promptEditTextarea").classList.add("hidden");
-        document.getElementById("btnToggleEdit").textContent = "✏️ แก้ไขเอง";
-        showToast("เกลาพรอมพ์และเติมคลังตัวอย่างด้วย AI เรียบร้อยแล้ว ✨");
-      } catch (err) {
-        const msg = String(err.message || "");
-        if (msg === "NO_API_KEY") {
-          showToast("กรุณาใส่ Gemini API Key ในปุ่ม ⚙️ ตั้งค่า API Key เพื่อใช้โหมดเกลาพรอมพ์ด้วย AI", "info");
-          openApiModal();
-        } else if (msg.startsWith("API_KEY_INVALID:")) {
-          showToast("API Key ไม่ถูกต้อง กรุณาตรวจสอบในปุ่ม ⚙️ ตั้งค่า API Key", "error");
-          openApiModal();
-        } else {
-          showToast("ไม่สามารถเชื่อมต่อ AI ได้ในขณะนี้ (สามารถกด 'แก้ไขเอง' เพื่อปรับข้อความได้ทันที)", "info");
+        function renderGradeChips() {
+            const container = document.getElementById('grade-chips');
+            container.innerHTML = GRADES.map(g => `
+                <button type="button" onclick="selectGrade('${g}')" 
+                    class="px-3 py-1.5 rounded-xl text-xs font-semibold transition border ${
+                        selectedGrade === g 
+                        ? 'bg-amber-700 text-white border-amber-800 shadow-sm' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-amber-300'
+                    }">
+                    ${g}
+                </button>
+            `).join('');
         }
-      } finally {
-        btn.disabled = false;
-        spinner.classList.add("hidden");
-      }
-    }
 
-    // ------------------------- 9. คัดลอก ดาวน์โหลด และรีเซ็ต -------------------------
-
-    function copyPromptToClipboard() {
-      const text = document.getElementById("promptOutputPre").textContent || "";
-      if (!text) return;
-
-      // ใช้ document.execCommand('copy') เพื่อรองรับ iFrame ได้สมบูรณ์
-      const tempArea = document.createElement("textarea");
-      tempArea.value = text;
-      tempArea.setAttribute("readonly", "");
-      tempArea.style.position = "fixed";
-      tempArea.style.left = "-9999px";
-      document.body.appendChild(tempArea);
-      tempArea.select();
-      try {
-        document.execCommand("copy");
-        showToast("คัดลอกพรอมพ์ทั้งหมดแล้ว! นำไปวางใน Gemini ได้เลย 📋✨");
-      } catch (err) {
-        showToast("ไม่สามารถคัดลอกอัตโนมัติได้ กรุณากดแก้ไขเองเพื่อคัดลอก", "error");
-      } finally {
-        document.body.removeChild(tempArea);
-      }
-    }
-
-    function downloadPromptTxt() {
-      const text = document.getElementById("promptOutputPre").textContent || "";
-      const safeName = (state.topic.trim() || "eduprompt").replace(/[^\u0E00-\u0E7Fa-zA-Z0-9_-]+/g, "_");
-      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `prompt_${safeName}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("ดาวน์โหลดไฟล์พรอมพ์ (.txt) เรียบร้อยแล้ว 💾");
-    }
-
-    function resetAll() {
-      state.subject = "ภาษาไทย";
-      state.customSubject = "";
-      state.topic = "คำเป็น คำตาย";
-      state.theme = "สดใสน่ารัก พาสเทล เป็นมิตรกับเด็ก (Playful Pastel Soft 3D)";
-      state.grade = "ป.5";
-      state.knowledgeFormat = "infographic";
-      state.exercises = ["matching", "true_false"];
-      state.exerciseItemCount = 5;
-      state.activities = ["bingo"];
-      state.postTestEnabled = true;
-      state.postTestType = "mcq";
-      state.choiceCount = 4;
-      state.questionCount = 10;
-      state.optShuffle = true;
-      state.optExplain = true;
-      state.optCertificate = true;
-      state.optTimer = false;
-      state.uploadedFile = null;
-      state.pastedText = "";
-      state.analysisResult = null;
-      state.isEditMode = false;
-      state.customPromptText = "";
-
-      document.getElementById("contentFileInput").value = "";
-      document.getElementById("pastedContentInput").value = "";
-      const badge = document.getElementById("uploadedFileBadge");
-      badge.classList.add("hidden");
-      badge.classList.remove("flex");
-      document.getElementById("aiAnalysisResult").classList.add("hidden");
-      showErrorBox("");
-
-      syncInputsFromState();
-      renderAll();
-      showToast("รีเซ็ตการตั้งค่าทั้งหมดกลับเป็นค่าเริ่มต้นแล้ว 🔄");
-    }
-
-    // ------------------------- 10. ผูก Event Listeners และเริ่มต้นทำงาน -------------------------
-
-    function initEventListeners() {
-      // แท็บอัปโหลดไฟล์ / วางข้อความ
-      const tabFile = document.getElementById("tabUploadFile");
-      const tabPaste = document.getElementById("tabPasteText");
-      const panelFile = document.getElementById("panelUploadFile");
-      const panelPaste = document.getElementById("panelPasteText");
-
-      tabFile.addEventListener("click", () => {
-        state.inputMode = "file";
-        tabFile.className = "rounded-xl bg-grape px-3.5 py-2 text-xs font-bold text-white transition";
-        tabPaste.className = "rounded-xl bg-surfaceAlt px-3.5 py-2 text-xs font-bold text-inkSoft transition hover:bg-[#EFE5D8]";
-        panelFile.classList.remove("hidden");
-        panelPaste.classList.add("hidden");
-        updatePreview();
-      });
-
-      tabPaste.addEventListener("click", () => {
-        state.inputMode = "paste";
-        tabPaste.className = "rounded-xl bg-grape px-3.5 py-2 text-xs font-bold text-white transition";
-        tabFile.className = "rounded-xl bg-surfaceAlt px-3.5 py-2 text-xs font-bold text-inkSoft transition hover:bg-[#EFE5D8]";
-        panelPaste.classList.remove("hidden");
-        panelFile.classList.add("hidden");
-        updatePreview();
-      });
-
-      // อัปโหลดไฟล์ผ่าน input และ Drag & Drop
-      const fileInput = document.getElementById("contentFileInput");
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (file) handleFileSelected(file);
-      });
-
-      const dropZone = document.getElementById("uploadDropZone");
-      ["dragenter", "dragover"].forEach(evtName => {
-        dropZone.addEventListener(evtName, (e) => {
-          e.preventDefault();
-          dropZone.classList.add("border-grape", "bg-grape/5");
-        });
-      });
-      ["dragleave", "drop"].forEach(evtName => {
-        dropZone.addEventListener(evtName, (e) => {
-          e.preventDefault();
-          dropZone.classList.remove("border-grape", "bg-grape/5");
-        });
-      });
-      dropZone.addEventListener("drop", (e) => {
-        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (file) {
-          state.inputMode = "file";
-          tabFile.click();
-          handleFileSelected(file);
+        function selectGrade(g) {
+            selectedGrade = g;
+            renderGradeChips();
+            updatePrompt();
         }
-      });
 
-      // ลบไฟล์ที่อัปโหลด
-      document.getElementById("btnRemoveFile").addEventListener("click", () => {
-        state.uploadedFile = null;
-        state.analysisResult = null;
-        fileInput.value = "";
-        const badge = document.getElementById("uploadedFileBadge");
-        badge.classList.add("hidden");
-        badge.classList.remove("flex");
-        document.getElementById("aiAnalysisResult").classList.add("hidden");
-        updatePreview();
-      });
-
-      // วางข้อความเนื้อหา
-      document.getElementById("pastedContentInput").addEventListener("input", (e) => {
-        state.pastedText = e.target.value;
-        state.analysisResult = null;
-        state.isEditMode = false;
-        updatePreview();
-      });
-
-      // ปุ่มวิเคราะห์และปุ่มนำค่าแนะนำไปใช้
-      document.getElementById("btnAnalyzeContent").addEventListener("click", analyzeContentWithAI);
-      document.getElementById("btnApplyRecommendations").addEventListener("click", applyAIRecommendations);
-
-      // อินพุตส่วนที่ 1
-      document.getElementById("customSubjectInput").addEventListener("input", (e) => {
-        state.customSubject = e.target.value;
-        state.isEditMode = false;
-        updatePreview();
-      });
-      document.getElementById("topicInput").addEventListener("input", (e) => {
-        state.topic = e.target.value;
-        state.isEditMode = false;
-        updatePreview();
-      });
-      document.getElementById("themeSelect").addEventListener("change", (e) => {
-        state.theme = e.target.value;
-        state.isEditMode = false;
-        updatePreview();
-      });
-
-      // อินพุตส่วนที่ 6 (แบบทดสอบหลังเรียน)
-      document.getElementById("postTestEnabled").addEventListener("change", (e) => {
-        state.postTestEnabled = e.target.checked;
-        document.getElementById("postTestConfigWrap").classList.toggle("hidden", !state.postTestEnabled);
-        state.isEditMode = false;
-        updatePreview();
-      });
-      document.getElementById("customQuestionCount").addEventListener("input", (e) => {
-        const val = Math.max(1, Math.min(50, parseInt(e.target.value, 10) || 1));
-        state.questionCount = val;
-        state.isEditMode = false;
-        renderPostTestControls();
-        updatePreview();
-      });
-      ["optShuffle", "optExplain", "optCertificate", "optTimer"].forEach(id => {
-        document.getElementById(id).addEventListener("change", (e) => {
-          state[id] = e.target.checked;
-          state.isEditMode = false;
-          updatePreview();
-        });
-      });
-
-      // ปุ่มควบคุมการ์ดพรอมพ์ด้านขวา
-      document.getElementById("btnCopyPrompt").addEventListener("click", copyPromptToClipboard);
-      document.getElementById("btnDownloadTxt").addEventListener("click", downloadPromptTxt);
-      document.getElementById("btnEnhanceAI").addEventListener("click", enhancePromptWithAI);
-      document.getElementById("btnResetAll").addEventListener("click", resetAll);
-
-      // ปุ่มและ Modal ตั้งค่า Gemini API Key
-      document.getElementById("btnApiSettings").addEventListener("click", openApiModal);
-      document.getElementById("btnCloseApiModal").addEventListener("click", closeApiModal);
-      document.getElementById("btnSaveApiKey").addEventListener("click", saveApiKeySettings);
-      document.getElementById("btnClearApiKey").addEventListener("click", clearApiKeySettings);
-      document.getElementById("btnTestApiKey").addEventListener("click", testApiKeyConnection);
-
-      document.getElementById("btnToggleApiKeyVis").addEventListener("click", () => {
-        const input = document.getElementById("apiKeyInput");
-        const isPassword = input.type === "password";
-        input.type = isPassword ? "text" : "password";
-        document.getElementById("btnToggleApiKeyVis").textContent = isPassword ? "🙈 ซ่อน" : "👁️ แสดง";
-      });
-
-      // คลิกพื้นหลังหรือกด Esc เพื่อปิด Modal
-      const apiModal = document.getElementById("apiKeyModal");
-      apiModal.addEventListener("click", (e) => {
-        if (e.target === apiModal) closeApiModal();
-      });
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && !apiModal.classList.contains("hidden")) {
-          closeApiModal();
+        function renderThemeChoices() {
+            const container = document.getElementById('theme-color-options');
+            container.innerHTML = THEMES.map(t => `
+                <button type="button" onclick="selectTheme('${t.id}')" 
+                    class="p-2 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition ${
+                        selectedTheme === t.id 
+                        ? 'border-amber-500 bg-amber-50 text-amber-900 ring-2 ring-amber-400' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-amber-300'
+                    }">
+                    <span class="w-3.5 h-3.5 rounded-full ${t.bg}"></span>
+                    <span class="truncate">${t.name}</span>
+                </button>
+            `).join('');
         }
-      });
 
-      // โหมดแก้ไขพรอมพ์เอง
-      document.getElementById("btnToggleEdit").addEventListener("click", () => {
-        const isCurrentlyTextareaVisible = !document.getElementById("promptEditTextarea").classList.contains("hidden");
-        if (isCurrentlyTextareaVisible) {
-          state.customPromptText = document.getElementById("promptEditTextarea").value;
-          document.getElementById("promptOutputPre").textContent = state.customPromptText;
-          document.getElementById("promptReadBox").classList.remove("hidden");
-          document.getElementById("promptEditTextarea").classList.add("hidden");
-          document.getElementById("btnToggleEdit").textContent = "✏️ แก้ไขเอง";
-          showToast("บันทึกการแก้ไขพรอมพ์แล้ว ✅");
-        } else {
-          state.isEditMode = true;
-          document.getElementById("promptEditTextarea").value = document.getElementById("promptOutputPre").textContent;
-          document.getElementById("promptReadBox").classList.add("hidden");
-          document.getElementById("promptEditTextarea").classList.remove("hidden");
-          document.getElementById("promptEditTextarea").focus();
-          document.getElementById("btnToggleEdit").textContent = "✅ เสร็จสิ้น";
+        function selectTheme(tId) {
+            selectedTheme = tId;
+            renderThemeChoices();
+            updatePrompt();
         }
-      });
 
-      document.getElementById("promptEditTextarea").addEventListener("input", (e) => {
-        state.customPromptText = e.target.value;
-        document.getElementById("promptCharCount").textContent = `${state.customPromptText.length.toLocaleString()} ตัวอักษร`;
-      });
-    }
+        function renderContentFormats() {
+            const container = document.getElementById('content-format-options');
+            container.innerHTML = CONTENT_FORMATS.map(cf => `
+                <button type="button" onclick="selectContentFormat('${cf.id}')" 
+                    class="p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                        selectedContentFormat === cf.id 
+                        ? 'bg-amber-50 border-amber-500 text-amber-900 ring-2 ring-amber-300' 
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-amber-300'
+                    }">
+                    <i class="fa-solid ${cf.icon} text-amber-600 text-lg mb-1"></i>
+                    <div>
+                        <div class="text-xs font-bold">${cf.label}</div>
+                        <div class="text-[10px] text-gray-500">${cf.desc}</div>
+                    </div>
+                </button>
+            `).join('');
+        }
 
-    // เริ่มทำงานเมื่อ DOM โหลดครบ
-    document.addEventListener("DOMContentLoaded", () => {
-      renderPresets();
-      initEventListeners();
-      syncInputsFromState();
-      updateApiStatusUI();
-      renderAll();
-    });
-  </script>
+        function selectContentFormat(id) {
+            selectedContentFormat = id;
+            renderContentFormats();
+            updatePrompt();
+        }
+
+        function renderExerciseTypes() {
+            const container = document.getElementById('exercise-types-container');
+            container.innerHTML = EXERCISE_TYPES.map(ex => {
+                const checked = selectedExercises.includes(ex.id);
+                return `
+                    <label class="flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition ${
+                        checked ? 'bg-amber-50 border-amber-300 text-amber-900' : 'bg-white border-gray-200 text-gray-700'
+                    }">
+                        <input type="checkbox" onchange="toggleExercise('${ex.id}')" ${checked ? 'checked' : ''} class="w-4 h-4 text-amber-500 rounded">
+                        <span>${ex.label}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleExercise(id) {
+            if (selectedExercises.includes(id)) {
+                selectedExercises = selectedExercises.filter(x => x !== id);
+            } else {
+                selectedExercises.push(id);
+            }
+            renderExerciseTypes();
+            updatePrompt();
+        }
+
+        function renderGames() {
+            const container = document.getElementById('games-container');
+            container.innerHTML = GAMES.map(g => {
+                const selected = selectedGames.includes(g.id);
+                return `
+                    <div onclick="toggleGame('${g.id}')" 
+                        class="p-3 rounded-xl border cursor-pointer transition relative ${
+                            selected 
+                            ? 'bg-purple-50 border-purple-400 text-purple-900 ring-2 ring-purple-300' 
+                            : 'bg-white border-gray-200 text-gray-700 hover:border-purple-200'
+                        }">
+                        ${selected ? '<i class="fa-solid fa-circle-check absolute top-2.5 right-2.5 text-purple-600 text-sm"></i>' : ''}
+                        <i class="fa-solid ${g.icon} text-purple-600 text-lg mb-1"></i>
+                        <div class="text-xs font-bold">${g.name}</div>
+                        <div class="text-[10px] text-gray-500">${g.desc}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Memory card feature box visibility
+            const memBox = document.getElementById('memory-card-feature-box');
+            if (selectedGames.includes('memory')) {
+                memBox.classList.remove('hidden');
+            } else {
+                memBox.classList.add('hidden');
+            }
+        }
+
+        function toggleGame(id) {
+            if (selectedGames.includes(id)) {
+                selectedGames = selectedGames.filter(g => g !== id);
+            } else {
+                selectedGames.push(id);
+            }
+            renderGames();
+            updatePrompt();
+        }
+
+        function clearAllGames() {
+            selectedGames = [];
+            renderGames();
+            updatePrompt();
+        }
+
+        function setPeekTime(seconds) {
+            selectedPeekTime = seconds;
+            [3, 5, 8, 10].forEach(s => {
+                const btn = document.getElementById(`peek-time-${s}`);
+                if (btn) {
+                    if (s === seconds) {
+                        btn.className = "px-2.5 py-1 text-xs rounded-lg border border-purple-600 bg-purple-600 text-white font-bold";
+                    } else {
+                        btn.className = "px-2.5 py-1 text-xs rounded-lg border border-purple-300 bg-white text-gray-700";
+                    }
+                }
+            });
+            updatePrompt();
+        }
+
+        function togglePdfOptions() {
+            const pdfSub = document.getElementById('pdf-options-sub');
+            const enabled = document.getElementById('feat-pdf-enable').checked;
+            pdfSub.style.opacity = enabled ? '1' : '0.4';
+            pdfSub.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+
+        function togglePeekOptions() {
+            const peekSub = document.getElementById('peek-options-sub');
+            const enabled = document.getElementById('feat-peek-enable').checked;
+            peekSub.style.opacity = enabled ? '1' : '0.4';
+            peekSub.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+
+        function toggleQuizSub() {
+            const container = document.getElementById('quiz-sub-container');
+            const enabled = document.getElementById('quiz-enable').checked;
+            container.style.opacity = enabled ? '1' : '0.4';
+            container.style.pointerEvents = enabled ? 'auto' : 'none';
+        }
+
+        function updateBannerPreview() {
+            const url = document.getElementById('banner-url').value.trim();
+            const previewBox = document.getElementById('banner-preview-box');
+            const previewImg = document.getElementById('banner-preview-img');
+            if (url) {
+                previewImg.src = url;
+                previewBox.classList.remove('hidden');
+            } else {
+                previewBox.classList.add('hidden');
+            }
+        }
+
+        // --- PROMPT GENERATION ENGINE ---
+        function updatePrompt() {
+            const topic = document.getElementById('topic-name').value.trim() || 'บทเรียนเพื่อการเรียนรู้';
+            const subjectObj = SUBJECTS.find(s => s.id === selectedSubject);
+            const subjectName = selectedSubject === 'custom' ? (customSubjectText || 'วิชาเรียน') : subjectObj.name;
+            const themeObj = THEMES.find(t => t.id === selectedTheme);
+            const formatObj = CONTENT_FORMATS.find(f => f.id === selectedContentFormat);
+            const exerciseCount = document.getElementById('exercise-count').value;
+
+            // Features state
+            const isBannerEnabled = document.getElementById('feat-banner-enable').checked;
+            const bannerUrl = document.getElementById('banner-url').value.trim();
+            const isBannerBtnEnabled = document.getElementById('feat-banner-upload-btn').checked;
+
+            const isPdfEnabled = document.getElementById('feat-pdf-enable').checked;
+            const isPdfHeader = document.getElementById('pdf-opt-header').checked;
+            const isPdfAnswerKey = document.getElementById('pdf-opt-answerkey').checked;
+            const isPdfBreakAvoid = document.getElementById('pdf-opt-break').checked;
+
+            const isMemorySelected = selectedGames.includes('memory');
+            const isPeekEnabled = isMemorySelected && document.getElementById('feat-peek-enable').checked;
+            const isPeekTimer = isMemorySelected && document.getElementById('peek-opt-timer').checked;
+            const isPeekLock = isMemorySelected && document.getElementById('peek-opt-lock').checked;
+
+            const isQuizEnabled = document.getElementById('quiz-enable').checked;
+            const quizFormat = document.getElementById('quiz-format').value;
+            const quizNum = document.getElementById('quiz-num-questions').value;
+
+            const userTextContent = document.getElementById('pasted-content').value.trim();
+
+            // Update Right Banner Preview Card
+            document.getElementById('preview-badge-subject').innerText = subjectName;
+            document.getElementById('preview-badge-grade').innerText = selectedGrade;
+            document.getElementById('preview-banner-title').innerText = topic;
+
+            // Update Summary Badges
+            const summaryContainer = document.getElementById('selected-summary-chips');
+            let summaryHTML = `
+                <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded">${formatObj.label}</span>
+                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded">ฝึกหัด ${selectedExercises.length} แบบ (${exerciseCount} ข้อ)</span>
+            `;
+            if (isPdfEnabled) summaryHTML += `<span class="bg-blue-600 text-white px-2 py-0.5 rounded font-bold">🖨️ PDF A4</span>`;
+            if (selectedGames.length > 0) summaryHTML += `<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded">เกม: ${selectedGames.length} กิจกรรม</span>`;
+            if (isPeekEnabled) summaryHTML += `<span class="bg-purple-600 text-white px-2 py-0.5 rounded font-bold">👀 แอบดู ${selectedPeekTime}s</span>`;
+            if (isBannerEnabled) summaryHTML += `<span class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded">🖼️ แบนเนอร์ปรับรูปได้</span>`;
+            summaryContainer.innerHTML = summaryHTML;
+
+            // Generate System Prompt
+            let promptText = `คุณคือผู้เชี่ยวชาญการพัฒนาเว็บแอปพลิเคชันเพื่อการศึกษา (Senior Educational Web Application Engineer & UX Designer) 
+
+กรุณาสร้างเว็บแอปพลิเคชันสื่อการเรียนรู้แบบ Interactive ในไฟล์เดียว (Single-File HTML) ตามรายละเอียดดังนี้:
+
+📌 1. ข้อมูลพื้นฐานสื่อการสอน:
+- ชื่อหัวข้อบทเรียน: "${topic}"
+- กลุ่มสาระการเรียนรู้/วิชา: ${subjectName}
+- ระดับชั้นของผู้เรียน: ${selectedGrade}
+- โทนสีหลักของแอป: โทน${themeObj.name} (ใช้ Tailwind CSS ปรับสีสันสดใส สวยงาม เหมาะสมกับผู้เรียน)
+- รูปแบบการนำเสนอเนื้อหาใบความรู้: ${formatObj.label} (${formatObj.desc})
+`;
+
+            // NEW FEATURE #3 Prompt Instructions
+            if (isBannerEnabled) {
+                promptText += `\n🖼️ 2. ส่วนหัวบทเรียนและรูปภาพแบนเนอร์ (Hero Banner Component):
+- ให้สร้าง Hero Banner ส่วนบนสุดของบทเรียนด้วย Tailwind CSS ให้สวยงามสะดุดตา
+- กำหนดตัวแปรสำหรับเปลี่ยนรูปภาพแบนเนอร์ไว้ด้านบนสุดของโค้ด JavaScript อย่างชัดเจน เช่น:
+  const BANNER_IMAGE_URL = "${bannerUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'}";
+- เพิ่มคอมเมนต์ในโครงสร้าง HTML และ JS แนะนำให้คุณครูเข้ามาแก้ไข URL รูปภาพได้ง่ายในจุดเดียว
+- ตกแต่งด้วย object-cover พร้อมแถบ Overlay Gradient สีเข้มเพื่อความคมชัดของข้อความหัวเรื่อง
+- มีระบบ Image Error Fallback อัตโนมัติ (หากรูปโหลดไม่ได้ ให้แสดงภาพพื้นหลังไล่สีสวยงามแทน)`;
+                if (isBannerBtnEnabled) {
+                    promptText += `\n- เพิ่มปุ่ม "🖼️ เปลี่ยนรูปแบนเนอร์" บนหน้าเว็บ ให้ครูวาง URL รูปภาพใหม่เพื่ออัปเดตแบนเนอร์ได้สดทันที`;
+                }
+            }
+
+            // Exercise Prompt Instructions
+            promptText += `\n\n📝 3. ส่วนแบบฝึกหัดระหว่างเรียน (Interactive Exercises):
+- จำนวนโจทย์: ${exerciseCount} ข้อ
+- รูปแบบแบบฝึกหัดที่ต้องการ: ${selectedExercises.map(e => EXERCISE_TYPES.find(t => t.id === e)?.label).join(', ')}`;
+
+            // NEW FEATURE #1 Prompt Instructions (Print PDF A4)
+            if (isPdfEnabled) {
+                promptText += `\n\n🖨️ 4. ฟีเจอร์ใหม่: ระบบพิมพ์ / ดาวน์โหลดแบบฝึกหัดเป็น PDF (กระดาษ A4):
+- ใส่ปุ่ม "🖨️ พิมพ์ / บันทึกเป็น PDF (A4)" เด่นชัดในส่วนแบบฝึกหัด
+- กำหนด CSS style สำหรับ @page { size: A4 portrait; margin: 12mm 15mm; } และ @media print เพื่อจัดหน้า A4 อย่างเป็นระเบียบ
+- เมื่อกดพิมพ์ ให้ซ่อนแถบเมนู ปุ่มกด และส่วนที่ไม่จำเป็นออก ให้เหลือเฉพาะเนื้อหาใบงาน`;
+                if (isPdfHeader) {
+                    promptText += `\n- มีหัวกระดาษใบงานมาตรฐานครูไทย: ช่องใส่ชื่อโรงเรียน, ชื่อวิชา, ชื่อ-นามสกุลนักเรียน, ชั้น, เลขที่, วันที่ และกล่องแสดงคะแนน`;
+                }
+                if (isPdfAnswerKey) {
+                    promptText += `\n- มีสวิตช์ toggle ก่อนสั่งพิมพ์ ให้เลือกระหว่าง "ฉบับนักเรียน (โจทย์ว่างไว้เขียน)" และ "ฉบับเฉลยครู (พร้อมคำตอบเเละคำอธิบาย)"`;
+                }
+                if (isPdfBreakAvoid) {
+                    promptText += `\n- ใส่ CSS property (break-inside: avoid;) ในกล่องโจทย์ทุกข้อ เพื่อป้องกันไม่ให้ข้อสอบถูกตัดขาดครึ่งข้ามหน้ากระดาษ`;
+                }
+            }
+
+            // Game Prompt Instructions
+            if (selectedGames.length > 0) {
+                promptText += `\n\n🎮 5. กิจกรรมเกมเสริมการเรียนรู้:
+- เกมที่เลือก: ${selectedGames.map(gId => GAMES.find(g => g.id === gId)?.name).join(', ')}`;
+                if (selectedGames.length > 1) {
+                    promptText += `\n- ให้สร้างเป็นศูนย์รวมเกม (Game Hub) มีแท็บสลับเล่นได้ทุกเกมอย่างสะดวก`;
+                }
+
+                // NEW FEATURE #2 Prompt Instructions (Memory Card Peek)
+                if (isMemorySelected && isPeekEnabled) {
+                    promptText += `\n\n👀 6. ฟีเจอร์ใหม่สำหรับเกมเปิดป้ายจับคู่ (Memory Card Match):
+- เพิ่มปุ่ม "👀 เปิดดูแผ่นป้ายทั้งหมด (${selectedPeekTime} วินาที)" เด่นชัดหน้าเกม
+- เมื่อกดปุ่ม ให้หงายการ์ดจับคู่ทุกใบขึ้นพร้อมกัน ตั้งค่าสถานะ isPreviewing = true`;
+                    if (isPeekTimer) {
+                        promptText += `\n- แสดงตัวนับถอยหลังนับถอยหลัง (${selectedPeekTime}...${selectedPeekTime-1}...1) พร้อมแถบเวลา Progress Bar และเสียงติ๊กต็อก (Web Audio API)
+- เมื่อครบ ${selectedPeekTime} วินาที ให้สั่งพลิกคว่ำการ์ดทุกใบที่ยังจับคู่ไม่สำเร็จกลับอัตโนมัติ`;
+                    }
+                    if (isPeekLock) {
+                        promptText += `\n- ล็อกไม่ให้ผู้เรียนเปิดจับคู่การ์ดระหว่างที่กำลังเปิดแอบดูอยู่
+- จำกัดสิทธิ์การกดปุ่มดูได้ 1 ครั้งต่อรอบเกม (ปุ่มจะถูก Disable หลังกดใช้งาน และจะเปิดใช้งานใหม่เมื่อกดเริ่มเกมใหม่)`;
+                    }
+                }
+            }
+
+            // Post-Test Quiz Prompt Instructions
+            if (isQuizEnabled) {
+                promptText += `\n\n🎯 7. แบบทดสอบหลังเรียน (Post-Test):
+- รูปแบบ: ${quizFormat}, จำนวน ${quizNum} ข้อ
+- คุณสมบัติเพิ่มเติม: สลับข้อ/ตัวเลือก, มีระบบจับเวลา, แสดงเฉลยอย่างละเอียดพร้อมคำอธิบาย, มีระบบประมวลผลสรุปคะแนนและออกเกียรติบัตรออนไลน์ (Certificate Canvas) สำหรับผู้สอบผ่าน`;
+            }
+
+            // User Uploaded Context / Custom Text
+            if (userTextContent || uploadedFileText) {
+                promptText += `\n\n📚 8. เนื้อหาประกอบบทเรียนที่ผู้ใช้กำหนด (ให้นำไปสอดแทรกในใบความรู้และโจทย์):
+${userTextContent || uploadedFileText}`;
+            }
+
+            // Technical Guardrails & Execution Format
+            promptText += `\n\n⚠️ เงื่อนไขด้านเทคนิคและการแสดงผล (Strict Technical Requirements):
+1. มอบโค้ดในรูปแบบ Single-File HTML สมบูรณ์เพียง 1 ไฟล์เท่านั้น (รวม HTML, Tailwind CSS CDN, Font Awesome 6 CDN, และ JavaScript ทั้งหมดไว้ในไฟล์เดียว)
+2. โค้ดต้องสะอาด ไม่มี Syntax Error, ไม่มีตัวแปรประกาศซ้ำ, ทำงานได้จริง 100%
+3. ใช้ฟอนต์ Google Fonts 'Sarabun' สำหรับเนื้อหา และ 'Mali' สำหรับหัวเรื่อง
+4. **ห้ามใช้ alert() หรือ confirm() ของเบราว์เซอร์เด็ดขาด** ให้สร้าง Toast Notification หรือ Custom Modal สวยงามแทน
+5. ใช้ Web Audio API สำหรับเอฟเฟกต์เสียงประกอบ (เช่น เสียงติ๊กต็อกนับถอยหลัง, เสียงตอบถูก/ผิด, เสียงเปิดการ์ด) โดยไม่ต้องพึ่งไฟล์เสียงภายนอก
+6. รองรับ Responsive Design สมบูรณ์แบบทุกหน้าจอ (คอมพิวเตอร์, แท็บเล็ต, สมาร์ตโฟน)`;
+
+            // Put in Output UI Textarea if not manually editing
+            const isManualEditing = document.getElementById('toggle-edit-prompt').checked;
+            if (!isManualEditing) {
+                document.getElementById('prompt-output-text').value = promptText;
+            }
+        }
+
+        function toggleManualPromptEdit() {
+            const textarea = document.getElementById('prompt-output-text');
+            const isManual = document.getElementById('toggle-edit-prompt').checked;
+            textarea.readOnly = !isManual;
+            if (!isManual) updatePrompt();
+        }
+
+        // --- GEMINI API KEY MODAL LOGIC ---
+        function openApiModal() {
+            const key = localStorage.getItem('GEMINI_API_KEY') || '';
+            const model = localStorage.getItem('GEMINI_MODEL') || 'gemini-2.5-flash';
+            document.getElementById('api-key-input').value = key;
+            document.getElementById('model-select').value = model;
+            document.getElementById('api-modal').classList.remove('hidden');
+        }
+
+        function closeApiModal() {
+            document.getElementById('api-modal').classList.add('hidden');
+        }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('api-key-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            const model = document.getElementById('model-select').value;
+            if (!key) {
+                showToast('กรุณากรอก API Key', 'error');
+                return;
+            }
+            localStorage.setItem('GEMINI_API_KEY', key);
+            localStorage.setItem('GEMINI_MODEL', model);
+            checkApiKeyStatus();
+            closeApiModal();
+            showToast('บันทึก API Key เรียบร้อยแล้ว', 'success');
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('GEMINI_API_KEY');
+            document.getElementById('api-key-input').value = '';
+            checkApiKeyStatus();
+            closeApiModal();
+            showToast('ล้าง API Key เรียบร้อยแล้ว', 'info');
+        }
+
+        function checkApiKeyStatus() {
+            const key = localStorage.getItem('GEMINI_API_KEY');
+            const dot = document.getElementById('api-status-dot');
+            if (key && key.startsWith('AIza')) {
+                dot.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+            } else {
+                dot.className = "w-3 h-3 rounded-full bg-amber-400 animate-pulse";
+            }
+        }
+
+        async function testApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            const model = document.getElementById('model-select').value;
+            if (!key) {
+                showToast('กรุณากรอก API Key ก่อนทดสอบ', 'error');
+                return;
+            }
+
+            showToast('กำลังทดสอบเชื่อมต่อ Gemini API...', 'info');
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: 'สวัสดี ทดสอบการเชื่อมต่อ API' }] }]
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('✅ ทดสอบสำเร็จ! Gemini API พร้อมใช้งาน', 'success');
+                } else {
+                    const errData = await response.json();
+                    showToast(`❌ API Error: ${errData.error?.message || 'Key ไม่ถูกต้อง'}`, 'error');
+                }
+            } catch (err) {
+                showToast('❌ การเชื่อมต่อล้มเหลว ตรวจสอบอินเทอร์เน็ต', 'error');
+            }
+        }
+
+        // --- FILE UPLOAD & ANALYZE LOGIC ---
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const infoBox = document.getElementById('file-info');
+            infoBox.innerText = `📄 เลือกไฟล์: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+            infoBox.classList.remove('hidden');
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'txt' || ext === 'md') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedFileText = e.target.result;
+                    showToast('อ่านไฟล์ข้อความเรียบร้อย', 'success');
+                    updatePrompt();
+                };
+                reader.readAsText(file);
+            } else if (ext === 'docx') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mammoth.extractRawText({ arrayBuffer: e.target.result })
+                        .then(result => {
+                            uploadedFileText = result.value;
+                            showToast('อ่านไฟล์ Word (.docx) เรียบร้อย', 'success');
+                            updatePrompt();
+                        })
+                        .catch(err => showToast('อ่านไฟล์ docx ล้มเหลว', 'error'));
+                };
+                reader.readAsArrayBuffer(file);
+            } else if (['png', 'jpg', 'jpeg', 'webp', 'pdf'].includes(ext)) {
+                uploadedFileText = `[ไฟล์แนบ: ${file.name}]`;
+                showToast(`โหลดไฟล์ ${file.name} แล้ว (ใช้ปุ่มวิเคราะห์ด้วย AI เพื่ออ่านเนื้อหา)`, 'info');
+            }
+        }
+
+        async function analyzeContentWithAI() {
+            const apiKey = localStorage.getItem('GEMINI_API_KEY');
+            const model = localStorage.getItem('GEMINI_MODEL') || 'gemini-2.5-flash';
+            const userText = document.getElementById('pasted-content').value.trim() || uploadedFileText;
+
+            if (!userText && !uploadedFileText) {
+                showToast('กรุณาพิมพ์เนื้อหา หรือเลือกไฟล์ก่อนวิเคราะห์', 'error');
+                return;
+            }
+
+            if (!apiKey) {
+                showToast('โปรดตั้งค่า Gemini API Key ก่อนใช้ฟีเจอร์วิเคราะห์ด้วย AI', 'error');
+                openApiModal();
+                return;
+            }
+
+            const btn = document.getElementById('btn-analyze-ai');
+            const originalBtnHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> AI กำลังวิเคราะห์เนื้อหา...`;
+            btn.disabled = true;
+
+            try {
+                const promptQuery = `วิเคราะห์เนื้อหาการเรียนรู้ต่อไปนี้ และตอบกลับเป็น JSON สั้นๆ ดังนี้:
+{
+  "topic": "ชื่อเรื่องที่กระชับและน่าสนใจ",
+  "subject_id": "เลือกจาก: soc, his, cs, th, math, sci, eng, art, custom",
+  "grade": "เลือกจาก: อ.1–อ.3, ป.1–ป.3, ป.4–ป.6, ม.1–ม.3, ม.4–ม.6, ปวช./ปวส./อุดมศึกษา",
+  "summary": "สรุปเนื้อหาสำคัญ 3 ข้อ"
+}
+
+เนื้อหา:
+${userText.substring(0, 3000)}`;
+
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptQuery }] }]
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const replyText = data.candidates[0].content.parts[0].text;
+                    const jsonMatch = replyText.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        if (parsed.topic) document.getElementById('topic-name').value = parsed.topic;
+                        if (parsed.subject_id) selectSubject(parsed.subject_id);
+                        if (parsed.grade) selectGrade(parsed.grade);
+                        if (parsed.summary) {
+                            document.getElementById('pasted-content').value = "สรุปเนื้อหาจาก AI:\n" + parsed.summary;
+                        }
+                        showToast('✨ AI วิเคราะห์เนื้อหาและปรับตั้งค่าเรียบร้อยแล้ว!', 'success');
+                    }
+                } else {
+                    showToast('การเรียก AI วิเคราะห์ล้มเหลว ตรวจสอบ API Key', 'error');
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ AI', 'error');
+            } finally {
+                btn.innerHTML = originalBtnHTML;
+                btn.disabled = false;
+                updatePrompt();
+            }
+        }
+
+        async function refinePromptWithAI() {
+            const apiKey = localStorage.getItem('GEMINI_API_KEY');
+            const model = localStorage.getItem('GEMINI_MODEL') || 'gemini-2.5-flash';
+            const currentPrompt = document.getElementById('prompt-output-text').value;
+
+            if (!apiKey) {
+                showToast('กรุณาตั้งค่า Gemini API Key ก่อนใช้การเกลาพรอมพ์ด้วย AI', 'error');
+                openApiModal();
+                return;
+            }
+
+            const btn = document.getElementById('btn-refine-prompt');
+            const origHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังเกลาพรอมพ์...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `โปรดช่วยปรับแต่งและเกลาพรอมพ์สร้างสื่อการสอนต่อไปนี้ ให้ชัดเจน สมบูรณ์ ภาษาเรียบลื่น และเพิ่มรายละเอียดเทคนิค UX/UI ให้น่าสนใจยิ่งขึ้น โดยยังคงข้อกำหนดเดิมไว้ทั้งหมด:\n\n${currentPrompt}` }] }]
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const newPrompt = data.candidates[0].content.parts[0].text;
+                    document.getElementById('prompt-output-text').value = newPrompt;
+                    document.getElementById('toggle-edit-prompt').checked = true;
+                    toggleManualPromptEdit();
+                    showToast('✨ เกลาพรอมพ์ด้วย AI สำเร็จแล้ว!', 'success');
+                } else {
+                    showToast('ไม่สามารถเกลาพรอมพ์ได้ ตรวจสอบ API Key', 'error');
+                }
+            } catch (err) {
+                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Gemini', 'error');
+            } finally {
+                btn.innerHTML = origHTML;
+                btn.disabled = false;
+            }
+        }
+
+        // --- UTILITY FUNCTIONS (COPY / DOWNLOAD / TOAST) ---
+        function copyPromptToClipboard() {
+            const text = document.getElementById('prompt-output-text').value;
+            if (!text) return;
+
+            // Use execCommand fallback for iframe compatibility
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = text;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('📋 คัดลอกพรอมพ์ลง คลิปบอร์ด แล้ว!', 'success');
+            } catch (err) {
+                showToast('ไม่สามารถคัดลอกได้', 'error');
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        function downloadPromptTxt() {
+            const text = document.getElementById('prompt-output-text').value;
+            const topic = document.getElementById('topic-name').value.trim() || 'Prompt';
+            const filename = `EduPrompt_${topic.replace(/\s+/g, '_')}.txt`;
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            showToast(`ดาวน์โหลดไฟล์ ${filename} เรียบร้อย`, 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let bgColor = 'bg-gray-800 text-white';
+            let icon = 'fa-circle-info';
+            if (type === 'success') {
+                bgColor = 'bg-emerald-600 text-white';
+                icon = 'fa-circle-check';
+            } else if (type === 'error') {
+                bgColor = 'bg-rose-600 text-white';
+                icon = 'fa-circle-exclamation';
+            }
+
+            toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-xl text-xs font-semibold ${bgColor} transition-all duration-300 transform translate-y-2 opacity-0 mb-2`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
 </body>
 </html>
